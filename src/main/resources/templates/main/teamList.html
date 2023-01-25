@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	  layout:decorate="~{/main/layout/layoutTeamList.html}">
+<head>
+<meta charset="UTF-8">
+
+<link rel="stylesheet" th:href="@{/css/ja0/teamListcss.css}" />
+<title>CoCoCo</title>
+<style>
+
+</style>
+</head>
+<body>
+<div layout:fragment="content">
+	<div id="mainTitle">
+		<button data-toggle="modal" data-target="#enterTeamModal" class="btn btn-cococo inviteBtn">초대코드</button>
+		<h2 id="title">WORKSPACE LIST</h2>
+	</div>
+	
+	<div id="pagingBody">
+		<!-- prevPage -->
+		<div class="pagingBtn" th:if="${paging.prevPage}">
+			<img th:src="@{/images/prevPage.svg}" th:page-data="${paging.prevPage.pageNumber}+1">
+		</div>
+		
+		<div class="content">
+		
+			<div class="box" th:team-data="${team.teamUserId.team.teamId}" th:each="team:${paging.result.getContent()}">
+				<img th:if="${session.user.userId != team.teamUserId.team.user.userId}" th:src="@{/images/menuDots.svg}" class="delMenu">
+				<button class="btn btn-outline-cococo delBtn" th:team-data="${team.teamUserId.team.teamId}">나가기</button>
+				
+				<img th:src="${team.teamUserId.team.teamImg}?:@{/images/teamImg.png}" th:alt="${team.teamUserId.team.teamImg}" class="rounded-radius">
+				
+				<p class="name">[[${team.teamUserId.team.teamName}]]</p>
+				<p>[[${#dates.format(team.teamUserId.team.createDate,'yyyy-MM-dd')}]]</p>
+				<p class="info">[[${team.teamUserId.team.teamInfo}]]</p>	
+			</div>
+			
+			<div class="addTeam" data-toggle="modal" data-target="#addTeamModal">+</div>
+		
+		</div>
+		
+		<!-- nextPage -->
+		<div class="pagingBtn" th:if="${paging.nextPage}">
+			<img th:src="@{/images/nextPage.svg}" th:page-data="${paging.nextPage.pageNumber}+1">
+		</div>
+	</div>
+	
+	<!--  paginForm -->
+	<form id="f1" th:action="@{/CoCoCo}" method="get">
+	    <input type="hidden" name="page" th:value="${paging.currentPageNum}">
+	    <input type="hidden" name="size" th:value="${paging.currentPage.pageSize}">
+	</form>
+	
+	<!-- 워크스페이스 등록 모달 -->
+    <div class="modal fade" id="addTeamModal">
+		<div class="modal-dialog">
+	        <!-- Modal content -->
+	        <div class="modal-content">
+	        	<div class="modal-header">
+	           		<h4 class="modal-title">NEW WORKSPACE</h4>
+	       		</div>
+	       		
+	        	<div class="modal-body">
+	        		<img th:src="@{/images/teamImg.png}" class="showImg rounded">
+	        		<label for="teamPhoto">
+						<img th:src="@{/images/addFile.png}" id="addImg" class="rounded-circle">
+					</label>
+	        		
+	        		<form id="addTeamForm" method="post" enctype="multipart/form-data">
+						<input type="file" name="teamPhoto" id="teamPhoto" class="form-control" accept="image/*">
+						
+			        	<label>WORKSPACE NAME</label>
+			        	<input type="text" name="teamName" class="form-control">
+			        	
+			         	<label>WORKSPACE INFO</label>
+			         	<textarea class="form-control body1" name="teamInfo" rows="2"></textarea>
+						
+						<div>
+							<label>WORKSPACE IMG</label>
+							<img id="deleteImg" th:src="@{/images/deleteTeamImg.svg}">
+				        	<input type="text" name="fileName" id="imgName" class="form-control" readonly="readonly">
+						</div>
+						
+						<input type="hidden" name="page" th:value="${paging.totalPageNum}">
+						<input type="hidden" name="size" th:value="${paging.currentPage.pageSize}">
+						
+						<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+		        	</form>
+		        </div>
+			
+				<div class="modal-footer">
+			    	<button id = "addTeamBtn" class="btn btn-cococo">워크스페이스 만들기</button>
+			    	<button type="button" class="btn btn-light" data-dismiss="modal">취소</button>
+	        	</div>
+	        </div>
+    	</div>
+    </div> <!-- Modal --> 
+    
+	<!-- 초대코드 입력 모달 -->
+    <div class="modal fade" id="enterTeamModal">
+		<div class="modal-dialog">
+	        <!-- Modal content -->
+	        <div class="modal-content">
+	        	<div class="modal-header">
+					<label class="modal-title">초대코드 입력</label>
+				</div>
+	        	<div class="modal-body">
+					<input type="text" id="code" class="form-control">
+		        </div>
+				<div class="modal-footer">
+			    	<button id = "enterBtn" class="btn btn-cococo">워크스페이스 입장</button>
+			    	<button type="button" class="btn btn-light" data-dismiss="modal">취소</button>
+	        	</div>
+	        </div>
+    	</div>
+    </div> <!-- Modal --> 
+   	
+   	<div th:replace="~{/main/statusUpdateModal}"></div>
+</div>
+
+<th:block layout:fragment="script">
+	<script>
+	$(function() {
+		var msg = "[[${msg}]]";
+		if(msg != "") {
+			alert(msg);
+		}
+		
+		if("[[${session.user.status}]]" == "") {
+			$("#statusUpdateModal .modal-title").html("상태설정을 먼저 해주세요!");
+			$("#statusUpdateModal").modal("show");
+		}
+		
+		$("input[name='from']").val("m");
+		
+		$(".pagingBtn img").click(movePage);
+	 	$(".box").click(goTeamMain);
+	 	$("#enterBtn").click(enterTeam);
+	 	$(".delMenu").click(showMenu);
+	 	$("body").click(hideMenu);
+	 	$(".delBtn").click(deleteTeam);
+	 	$("#addTeamBtn").click(addTeam);
+	 	$("#deleteImg").click(deleteMyImg);
+	 	$("#teamPhoto").change(showImg);
+	 	$(".addTeam").click(valueDelete);
+	 	$(".inviteBtn").click(valueDelete);
+	 	$("#statusUpdate").click(updateStatus);
+	 	
+	})
+	
+	var token = $("meta[name='_csrf']").attr("content");
+	var header = $("meta[name='_csrf_header']").attr("content");
+	
+	var formObj = $("#f1");
+	function movePage(){
+		formObj.find("[name='page']").val($(this).attr('page-data'));
+		formObj.attr("action", "/CoCoCo");
+		formObj.submit();
+	}
+	
+	function goTeamMain() {
+		var teamId = $(this).attr("team-data");
+		
+		$.ajax({
+			type:"get",
+			url:"/setTeamId/"+teamId,
+			success: function() {
+				location.href="/main";
+			}	
+		});
+	}
+		
+	function enterTeam() {
+		var code = $("#code").val();
+			
+		$.ajax({
+			type:"post",
+			url:"/findTeam/"+code,
+			beforeSend : function(xhr){
+				xhr.setRequestHeader(header, token);
+			},
+			success: function(resData) {
+				if(resData != 0) {
+					location.href = "/main";
+					return;
+				}
+				alert("초대코드를 확인해주세요!");
+			}
+		});
+	}
+		
+	function showMenu(e) {
+		e.stopPropagation();
+		hideMenu();
+		$(this).next().show();
+	}
+		
+	function hideMenu() {
+		$(".delBtn").hide();
+	}
+		
+	function deleteTeam(e) {
+		e.stopPropagation();
+		var teamId = $(this).attr("team-data");
+		
+		if(confirm("해당 워크스페이스에서 나가시겠습니까?")) {
+			location.href = "/deleteTeam/"+teamId;
+		}
+		hideMenu();
+	}
+		
+	function addTeam() {
+		var teamName = $("input[name='teamName']");
+		if(teamName.val() == "") {
+			alert("워크스페이스 이름은 필수입니다!");
+			teamName.focus();
+			return; 
+		}
+		
+		var addForm = $("#addTeamForm");
+		addForm.attr("action","/addTeam");
+		addForm.submit();
+	}
+	
+	function deleteMyImg() {
+		$(".showImg").attr("src", "/images/teamImg.png");
+		$("#imgName").val(null);
+		$("#deleteImg").hide();
+	}
+	
+	function showImg(event) {
+		$("#deleteImg").show();
+		//썸네일
+		var reader = new FileReader();
+
+		reader.onload = function(event) {
+			$(".showImg").attr("src", event.target.result);
+		};
+
+		reader.readAsDataURL(event.target.files[0]);
+		
+		//파일 이름
+		var imgName = $(this).val().split("\\").pop();
+		$("#imgName").val(imgName);
+	}
+		
+	function valueDelete() {
+		$("#code").val("");
+		$("input[name='teamName']").val("");
+		$("input[name='teamPhoto']").val("");
+		$("input[name='imgName']").val("");
+		$("textarea").val("");
+		$(".showImg").attr("src", "/images/teamImg.png");
+	}
+	
+	function updateStatus() {
+		var status = $("select[name='status']").val();
+
+		location.href="/updateStatus/m/" + status;
+	}
+	</script>
+</th:block>
+</body>
+</html>

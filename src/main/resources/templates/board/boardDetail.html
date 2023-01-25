@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorator="~{/layout/layout1}">
+<head>
+<meta charset="UTF-8">
+<title>CoCoCo | [[${session.team.teamName}]]</title>
+
+<link rel="stylesheet" th:href="@{/css/ja0/boardDetailcss.css}" />
+
+<script type="text/javascript">
+	var boardId = "[[${board.boardId}]]";
+	
+	$(function() {
+		$.getJSON('/board/getReply/'+boardId, printList);
+		
+		$("#newReplyBtn").click(newReply);
+		$("#newReply").keypress(enterReply);
+		$("#goList").click(goList);
+		$("#modifyBtn").click(modifyBoard);
+		$("#deleteBtn").click(deleteBoard);
+	})
+	
+	var token = $("meta[name='_csrf']").attr("content");
+	var header = $("meta[name='_csrf_header']").attr("content");
+	
+	function newReply() {
+		var text = $("#newReply").val();
+		if(text == "") return;
+		
+		var obj = {
+			"boardId" : boardId,
+			"replyText" : text
+		};
+		
+		$.ajax({
+			type:'post',
+			url: '/board/addReply/'+obj.boardId,
+			beforeSend : function(xhr){
+				xhr.setRequestHeader(header, token);
+			},
+			data: JSON.stringify(obj),
+			dataType:"json",
+			contentType: "application/json",
+			success:printList
+		});
+	}
+	
+	function enterReply(e) {
+		if(e.keyCode == 13) {
+			newReply();
+		}
+	}
+	
+	function deleteReply(replyId) {
+		$.ajax({
+			type:'delete',
+			url: '/board/deleteReply/'+replyId+"/"+boardId,
+			beforeSend : function(xhr){
+				xhr.setRequestHeader(header, token);
+			},
+			success:printList
+		});
+	}
+	
+	function modifyReply(replyId) {
+		alert("수정!");
+	}
+	
+	function goList() {
+		location.href="/board";
+	}
+	
+	function modifyBoard() {
+		location.href="/board/modify/"+boardId;
+	}
+	
+	function deleteBoard() {
+		if(confirm("게시글을 삭제하시겠습니까?")) {
+			location.href="/board/delete/"+boardId;
+		}
+	}
+	
+	function printList(list) {
+		var userId = "[[${session.user.userId}]]";
+		var str = "";
+	
+		for (var i = 0; i < list.length; i++) {
+			
+			str += "<div class='replyText'>"
+			+"<div class='replier'>"+list[i].user.name
+			
+			if(list[i].user.userId == userId) {
+				str += "<button class='delReplyBtn btn btn-outline-secondary btn-sm' onclick='deleteReply("+list[i].replyId+")'>삭제</button>"
+				+ "<button class='modifyReplyBtn btn btn-outline-secondary btn-sm' onclick='modifyReply("+list[i].replyId+")'>수정</button>"
+				+ "</div>"
+				+ "<input type='hidden' class='modifyText' value='"+ list[i].replyText +"' >"
+			} else {
+				str +="</div>"
+			}
+			
+			str +="<div class='rText'>" + list[i].replyText + "</div>"
+			+"<div class='replyRegDate'>등록일 : "+formatDate(list[i].replyUpdate)+"</div></div>";
+		}
+		
+		$("#replyContent").html(str);
+		$("#newReply").val(null);
+	}
+	
+	function formatDate(timeValue) {
+		var date = new Date(timeValue);
+		return date.getFullYear() + "-" + (date.getMonth() + 1) + "-"
+				+ date.getDate()+" "+date.getHours()+":"+date.getMinutes();
+	}
+</script>
+</head>
+
+<body>
+
+<div layout:fragment="my_menu" class="my_menu">
+	<div th:replace="~{/board/boardSide}"></div>
+</div>
+
+<div class="inner_content" layout:fragment="inner_content">
+
+	<div id="title">[[${board.boardTitle}]]</div>
+	<div id="writer">by [[${board.user.name}]]</div>
+	<div id="regDate">
+		<p>[[${#dates.format(board.boardRegDate, 'yy-MM-dd HH:mm')}]]</p>
+		<p th:if="${board.boardRegDate!=board.boardUpdate}">
+			( 수정 : [[${#dates.format(board.boardRegDate, 'yy-MM-dd HH:mm')}]] )
+		</p>
+	</div>
+	
+	<div id="boardText">[[${board.boardText}]]</div>
+	
+	<div th:if="${!bfList.isEmpty}" id="files">
+		<div id="fileTitle">첨부파일</div>
+		<div th:each="file:${bfList}">
+			<a th:href="@{/board/download/}+${file.fileId}">
+				<img th:src="@{/images/disk-icon.png}" id="fileImg">
+				[[${file.originFname}]]
+			</a>
+		</div>
+	</div>
+	
+	<div id="buttonDiv">
+		<div th:if="${session.user.userId == board.user.userId}">
+			<button class="btn btn-cococo" id="modifyBtn">수정</button>
+			<button class="btn btn-outline-cococo" id="deleteBtn">삭제</button>
+		</div>
+		<div> </div>
+		<button class="btn btn-cococo" id="goList">목록</button>
+	</div>
+	
+	<div id="replies">댓글</div>
+	
+	<div id="replyContent"></div>
+	
+	<div id="replyDiv">
+		<input id="newReply" class="form-control">
+		<button class="btn btn-outline-cococo" id="newReplyBtn">등록</button>
+	</div>
+	
+</div>
+</body>
+</html>

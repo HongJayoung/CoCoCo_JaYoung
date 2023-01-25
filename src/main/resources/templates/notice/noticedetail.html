@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorator="~{/layout/layout1}">
+<head>
+<meta charset="UTF-8">
+<meta name="_csrf" th:content="${_csrf.token}" />
+<meta name="_csrf_header" th:content="${_csrf.headerName}" />
+<title>공지사항</title>
+<style>
+/* .my_menu{
+ display:none;
+}
+
+.inner_content {
+  width: 1418px;
+} */
+
+.nav_menu2{
+	border-bottom: 3px solid tomato;
+}
+
+.wrap_notice .notice_detail{
+	width: 850px;
+	margin: 0 auto;
+	margin-top: 40px;
+}
+
+input {border: none; background-color: transparent;}
+input:focus {outline: none;}
+
+#noticeTitle {
+	width: 100%;
+	font-size: 28px;
+	letter-spacing: -1.8px;
+	
+}
+.notice_info {
+	font-size: 16px;
+	padding: 5px 0;
+	border-bottom: 1px solid #acacac;
+}
+
+.notice_info .writer input  {
+	float: right;
+	text-align: right;
+}
+
+.notice_info .date {
+	display: inline-block;
+}
+
+#noticeRegDate {
+	width: 110px;
+}
+
+.text-box {
+	width: 850px;
+	margin: 0 auto;
+}
+
+.wrap_notice textarea {
+	width: 100%;
+	background-color: transparent;
+	height: 300px;
+	margin-top: 15px;
+	border: none;
+	border-bottom: 1px solid #acacac;
+}
+
+.wrap_notice textarea:focus{
+	outline: none;
+}
+
+.btn-style:hover {
+	background-color: #f26100;
+	text-decoration: none;
+	color: #ffffff;
+}
+.btn-style {
+	border: none;
+	background-color: #FF7637;
+	color: #ffffff;
+	border-radius: 0.25rem;
+	padding: 0.3rem 0.5rem;
+	font-weight: 300;
+	font-size: 0.85rem;
+	letter-spacing: -0.9px;
+	text-align: center;
+
+}
+
+.btn-box {
+	margin:0 auto;
+	width: 850px;
+ 	margin-top: 10px;
+ 	padding: 0;
+}
+
+.noticefiles{
+	margin:0 auto;
+	width: 850px;
+}
+.noticefiles ul {
+	list-style-image: url('/images/disk-icon.png');
+}
+#btnViewList {
+	float: right;
+}
+
+</style>
+
+</head>
+
+<body>
+
+	<div layout:fragment="my_menu">
+		<div th:replace="~{/main/teamUserList}"></div>
+	</div>
+
+	<div class="inner_content" layout:fragment="inner_content">
+		<div class="wrap_notice">
+			<form id="frm">
+				<div class="notice_detail">
+						<div class="title-box">
+							<input id="noticeTitle" name="noticeTitle"
+								th:value="${notice.noticeTitle}" readonly="readonly"/>
+						</div>
+						<div class="notice_info">
+							<div class="writer">
+								<input name="noticeUserName"
+									th:value="|by  ${notice.user.name}|" readonly="readonly"/>
+							</div>
+							<div class="date">
+								<input id="noticeRegDate" name="noticeRegDate"
+									th:value="|${#dates.format(notice.noticeRegDate, 'yy-MM-dd HH:mm')}|"
+									readonly="readonly"/>
+								<input th:if="${notice.noticeRegDate!=notice.noticeUpdate}" id="noticeUpdate" name="noticeUpdate"
+									th:value="|(수정 : ${#dates.format(notice.noticeUpdate, 'yy-MM-dd HH:mm')})|"
+									readonly="readonly"/>
+							</div>
+						</div>		
+				</div>
+				<div class="text-box">
+					<textarea name="noticeText" th:text="${notice.noticeText}"
+						readonly="readonly"></textarea>
+				</div>
+						
+				<div class="noticefiles" th:if="${not #lists.isEmpty(nflist)}">
+					<label>첨부파일</label>
+					<ul th:each="file : ${nflist}">
+						<li th:if="${nflist} != null" >
+							<a th:href="@{/notice/download/}+${file.fileId}">[[${file.originFname}]]</a>
+						</li>
+					</ul>
+				</div>
+					
+				<div class="btn-box">
+					<a class="btn-style" id="btnUpdate" th:if="${session.teamUser.userRole == 'ADMIN'}" 
+					th:href="@{/notice/update(noticeId=${notice.noticeId})}">수정</a>
+					<a class="btn-style" id="btnDel" th:if="${session.teamUser.userRole == 'ADMIN'}"
+					th:href="@{/notice/delete(noticeId=${notice.noticeId})}" th:onclick="if(!confirm('글을 삭제하시겠습니까?')){return false;}">삭제</a>
+					<input type="hidden" th:name="${_csrf.parameterName}"
+						th:value="${_csrf.token}" />
+					<a class="btn-style" id="btnViewList"
+						th:href="@{/notice/(page=${pageVO.page}, size=${pageVO.size}, type=${pageVO.type},
+						keyword=${pageVO.keyword}, keyword2=${pageVO.keyword2},noticeId=${notice.noticeId})}">목록</a>
+				</div>
+			</form>
+		</div>
+	</div>
+</body>
+</html>

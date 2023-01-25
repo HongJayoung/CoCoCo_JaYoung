@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<script type="text/javascript">
+	$(function(){
+		var workNum = "[[${workNum}]]";
+		if(workNum>0) {
+			 google.charts.load("current", {packages:["corechart"]});
+		      google.charts.setOnLoadCallback(drawChart);
+		      function drawChart() {
+		        var data = google.visualization.arrayToDataTable([
+		          ['업무상태', '%'],
+		          ['대기', Number("[[${arr[0]}]]")],
+		     	  ['진행', Number("[[${arr[1]}]]")],
+		          ['완료', Number("[[${arr[2]}]]")]
+		        ]);
+
+		        var options = {
+				  colors:['#dedede', '#FF7F27', '#00b3fd'],
+		          pieHole: 0.4,
+		          chartArea: {
+		        	    /* 차트크기 */
+		        	    width: 290,
+		        	    height: 290
+		        	    },
+		        	   
+		        	    width: 320,
+		        	    height: 280,
+		        	    
+		        	    /* 차트에 레이블 표시 (percentage, value or label)*/
+		        	    pieSliceText: 'percentage',
+
+		        	    /* 꼬리표 제거 */
+		        	    legend: 'display'    
+		        };
+		        var chart = new google.visualization.PieChart(document.getElementById('donutchart'));
+		        chart.draw(data, options);
+		      }
+		}
+	});
+</script>
+<style>
+#donutchart {
+   	display: flex;
+    justify-content: center;
+}
+
+text {
+	font-size: 12px;
+}
+
+</style>
+<meta charset="UTF-8">
+<title>메인 | 업무진행률</title>
+</head>
+<body>
+	<div>
+		<div class="wrap_notice">
+			<div class="wrap_notice_title">
+			<h2 class="cococo-title-text">업무진행률</h2>
+			</div>
+			<p class="msg-null" th:if="${workNum}<=0">업무가 존재하지 않습니다.</p>
+			<div id="donutchart" th:if="${workNum}>0">
+			</div>
+		</div>
+	</div>
+</body>
+
+</html>

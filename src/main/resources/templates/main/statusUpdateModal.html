@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+
+	<!-- 상태변경 모달 -->
+	<div id="statusUpdateModal" class="modal fade">
+		<div class="modal-dialog">
+	    <!-- Modal content -->
+	        <div class="modal-content">
+	        	<div class="modal-header">
+					<label class="modal-title">상태변경</label>
+				</div>
+				
+	        	<div class="modal-body">
+					<select class="form-control" name="status">
+						<option>출근</option>
+						<option>회의</option>
+						<option>자리비움</option>
+						<option>외근</option>
+						<option>퇴근</option>
+						<option>휴가</option>
+					</select>
+		        </div>
+		        
+				<div class="modal-footer">
+			    	<button id = "statusUpdate" class="btn btn-cococo">수정</button>
+			    	<button type="button" class="btn btn-light" data-dismiss="modal">취소</button>
+	        	</div>
+	        </div>
+	   	</div>
+	</div> <!-- Modal --> 
+	
+</body>
+</html>

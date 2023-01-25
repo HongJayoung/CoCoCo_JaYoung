@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorator="~{/layout/layout1}">
+<head>
+<meta charset="UTF-8">
+<title>CoCoCo | [[${session.team.teamName}]]</title>
+<style>
+.inner_content h1 {
+	font-family: "LeferiPoint-WhiteObliqueA", sans-serif;
+    font-weight: 600;
+    letter-spacing: -2px;
+}
+
+#boardText {
+	margin: 20px 0;
+	height: 300px;
+}
+
+#insertBtn {
+    float: right;
+}
+</style>
+
+<script>
+$(function() {
+	$("#insertBtn").click(isEmpty);
+})
+
+function isEmpty() {
+	var title = $("input[name='boardTitle']");
+	var text = $("#boardText");
+	
+	if(title.val().trim() == "") {
+		title.focus();
+		return false;
+	} else if(text.val().trim() == "") {
+		text.focus();
+		return false;
+	}
+	
+	$("#boardForm").attr("action", "/board/insert");
+	$("#boardForm").submit();
+}
+</script>
+</head>
+<body>
+<div layout:fragment="my_menu" class="my_menu">
+	<div th:replace="~{/board/boardSide}"></div>
+</div>
+
+<div class="inner_content" layout:fragment="inner_content">
+
+<h1>게시판 ([[${category.categoryName}]])</h1>
+
+<form id="boardForm" method="post" enctype="multipart/form-data">
+	<input type="hidden" name="categoryId" th:value="${category.boardCategoryId}">
+	
+	<input type="text" name="boardTitle" class="form-control" placeholder="제목을 입력하세요">
+	<textarea name="boardText" class="form-control" id="boardText" placeholder="내용을 입력하세요"></textarea>
+	<input type="file" multiple="multiple" name="files">
+	<p>(Ctrl+선택 시 다중선택 가능)</p>
+	
+	<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+	<input type="submit" class="btn btn-cococo" id="insertBtn" value="작성">
+</form>
+</div>
+</body>
+</html>

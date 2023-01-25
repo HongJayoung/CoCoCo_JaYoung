@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+
+<div th:fragment="header1">
+		<div id="top">
+			<div class="team_logo">
+				<a th:href="@{/main}"><img src="/images/cococo-logo.png" height="38" alt="cococo logo"></a>
+			</div><!-- .team_logo -->
+			<div class="nav">
+				<div class="nav_menu1"><a href="/main"><span class="cococo-title-text">메인</span></a></div>
+				<div class="nav_menu2"><a href="/notice"><span class="cococo-title-text">공지</span></a></div>
+				<div class="nav_menu3"><a href="/board"><span class="cococo-title-text">게시판</span></a></div>
+				<div class="nav_menu4"><a href="/work/work"><span class="cococo-title-text">업무</span></a></div>
+				<div th:if="${session.teamUser.userRole == 'ADMIN'}" class="nav_menu5">
+					<a href="/admin/team"><span class="cococo-title-text">관리자</span></a>
+				</div>
+			</div><!-- .nav -->
+			
+			<div></div>
+		</div><!-- #top -->
+</div>
+
+<div th:fragment="header2">
+		<div id="top">
+			<div class="team_logo">
+				<img src="../images/cococo-logo.png" height="38" alt="cococo logo">
+			</div><!-- .team_logo -->
+			
+			<div class = "topMenu">
+				<img th:src="@{/images/myProfile.svg}" id="myProfile" data-toggle="modal" data-target="#MyPageModal">
+				<img th:src="@{/images/logout.svg}" alt="logout" id="logout">
+				<form id="logoutForm" method="post" th:action="@{/logout}"></form>
+			</div>
+		</div><!-- #top -->
+		
+		<div th:replace="~{/main/myProfileModal}"></div>
+		<script>
+		$(function() {
+			$("#logout").click(function() {
+				$("#logoutForm").submit();
+			});
+		})
+		</script>
+</div>
+</html>

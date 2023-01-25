@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" th:href="@{/css/gy/mainwork.css}" />
+
+<script type="text/javascript">
+	$(function(){
+		var team_id = "[[${session.teamId}]]";
+		var user_id = "[[${session.user.userId}]]";
+		var teamWorkList;
+		var teamTodayWorkList;
+		var workmanager = [];
+		var todaywork = 0;
+		
+	    var now = new Date();
+	    var year=now.getFullYear();
+	    var month=('00' + (now.getMonth()+1)).slice(-2);
+	    var date=('00' + (now.getDate())).slice(-2);
+	    
+	    $("#today").text(year+"."+month+"."+date);
+	    
+	  //해당 팀의 전체 업무 가져오기
+		$.ajax({
+			url:"/work/teamTodayWorkList/"+team_id,
+			type:"get",
+			success:function(responseData){
+				teamWorkList = responseData;
+				var num = 0;
+				$.each(teamWorkList,function(index, data){ 
+					workmanager = data.managerid;
+					
+					if(workmanager.includes(user_id)){
+						data.managerid = "user";
+					}else{
+						data.managerid = "none";
+					}
+					var todaydate = new Date(year+"-"+month+"-"+date);
+					var start = new Date(data.workStart);
+					var end = new Date(data.workEnd);
+					
+					if(num < 4){
+						if(start<=todaydate&&todaydate<=end){  //오늘날짜인 경우
+							if(data.managerid=="none" || data.workStatus=="finish"){ //not mine
+								$(".workListBox").append(
+										`<div class="form-control worklist" style="color:#BFBFBF">
+											<span class="workinfo">
+												<span class="workListTitle">${data.workTitle}</span>  
+												<span class="workListContent">${data.workText}</span>
+												<span>${data.workStart} ~ ${data.workEnd}</span>
+											</span>
+										</div>`);
+							}else { //미완료
+								$(".workListBox").append(
+										`<div class="form-control worklist" style="color:black">
+											<span class="workinfo">
+												<span class="workListTitle">${data.workTitle}</span>
+												<span class="workListContent">${data.workText}</span>
+												<span>${data.workStart} ~ ${data.workEnd}</span>
+											</span>
+											<div class="btn-secondary btn">미완료</div>
+										</div>`);
+							}
+							num += 1;
+						}else{
+						}
+					}
+					if(start<=todaydate&&todaydate<=end){
+						todaywork +=1;
+					}
+				});	
+				$(".workTitleText").append(` - ${todaywork}건`);
+				if(num==0){
+					$(".workListBox").append(
+							`<div class="form-control workNoneText" style="color:gray" >업무가 존재하지 않습니다</div>`);
+				}
+			}
+		});
+		$("#workShowBtn").on("click", function() {
+			location.href="/work/work";
+		});	    
+	});
+</script>
+</head>
+<body>
+	<div class="mainWork">
+		<div class="workTitleBox">
+			<h2 class="workTitleText cococo-title-text">오늘의 업무(<span id="today"></span>)</h2>
+			<button class="btn btn-cococo" id="workShowBtn">더보기</button>
+		</div>
+		<div class="workListBox">
+		</div>
+	</div>
+</body>
+</html>

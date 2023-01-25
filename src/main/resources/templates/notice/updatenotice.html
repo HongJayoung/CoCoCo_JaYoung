@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorator="~{/layout/layout1}">
+<head>
+<meta charset="UTF-8">
+<style>
+
+.nav_menu2{
+	border-bottom: 3px solid tomato;
+}
+
+
+.wrap_notice {
+	width: 850px;
+	margin: 0 auto;
+	margin-top: 40px;
+}
+.wrap_notice h1 {
+    font-family: "LeferiPoint-WhiteObliqueA", sans-serif;
+    font-weight: 600;
+    letter-spacing: -2px;
+	margin-bottom: 30px;
+}
+.wrap_notice .title input {
+	border: 1px solid #acacac;
+	width: 100%;
+	height: 40px;
+	padding: 0 10px;
+	box-sizing: border-box;
+}
+
+.wrap_notice textarea {
+	border: 1px solid #acacac;
+	width: 100%;
+	height: 300px;
+	padding: 10px;
+	margin-top: 15px;
+}
+
+.noticefiles ul {
+	list-style-image: url('/images/disk-icon.png');
+}
+.btn-style:hover {
+	background-color: #f26100;
+	text-decoration: none;
+	color: #ffffff;
+}
+
+.btn-style {
+	border: none;
+	background-color: #FF7637;
+	color: #ffffff;
+	border-radius: 0.25rem;
+	padding: 0.3rem 0.5rem;
+	font-weight: 300;
+	font-size: 0.85rem;
+	letter-spacing: -0.9px;
+	text-align: center;
+
+}
+
+.btn-box{
+	margin-top: 10px;
+	width: 100%;
+	padding: 0;
+}
+.btn-style:hover {
+	text-decoration: none;
+	color: #ffffff;
+}
+#btnUpdate {
+	float: left;
+}
+#btnViewList {
+	float: right;
+}
+
+</style>
+<script>
+		
+	var arr= []; 
+	function delFile(fileid, obj){
+		arr.push(fileid);
+		$(obj).parent().remove();
+	}
+	
+	$(function(){
+		var token = $("meta[name='_csrf']").attr("content");
+		var header = $("meta[name='_csrf_header']").attr("content");
+
+		$('#btnUpdate').click(function() {			
+			
+			var files = arr.join(",");
+			$("#fileIds").val(files);
+			
+			var title = document.update.noticeTitle;
+			if( title.value == null || title.value == "" ){
+				alert("제목을 입력해주세요.");
+				title.focus();
+				return false;
+			} else {
+				
+				$.ajax({
+					url : "/notice/update",
+					beforeSend : function(xhr)
+		            {   /*데이터를 전송하기 전에 헤더에 csrf값을 설정한다*/
+						xhr.setRequestHeader(header, token);  },
+					success : function(responseData) {
+						$(".wrap_notice").html(responseData);
+					}
+				});
+			}
+			
+		});
+		
+	});
+		
+</script>
+</head>
+
+<body>
+
+<div layout:fragment="my_menu">
+	<div th:replace="~{/main/teamUserList}"></div>
+</div>
+
+<div  class="inner_content" layout:fragment="inner_content">
+	<div class="wrap_notice">
+		<h1>공지사항</h1>
+		<div class="wrap_notice_update">
+			<form name="update" method="post" enctype="multipart/form-data">
+				<div class="checklist">
+					<label>상단고정</label>
+					<input th:checked="${notice.fixedYN} == 1" type="checkbox" name="fixedYN" value='1' id="input_check"/>
+					<input type="hidden" name="fixedYN" value='0' id="input_check_hidden"/>
+				</div>
+				<div class="title">
+					<input type="text" name="noticeTitle" th:value="${notice.noticeTitle}">
+				</div>
+				<div class="writer">
+					<input type="hidden" name="user" th:value="${session.user}" readonly="readonly">
+					<input type="hidden" name="teamId" th:value="${session.teamId}" readonly="readonly">
+				</div>
+				<div class="text">
+					<textarea name="noticeText" th:text="${notice.noticeText}"></textarea>
+				</div>
+				<div class="noticefiles">
+					<label>첨부파일</label>
+					<ul th:each="file : ${nflist}">
+						<li th:if="${nflist} == null" th:text="첨부파일 없음"></li>
+						<li th:if="${nflist} != null" >
+							<a th:href="@{'/noticefiles/' + ${file.filename}}">[[${file.originFname}]]</a>
+							<input type="button" id="btnDelFile" 
+							th:onclick="delFile([[${file.fileId}]], this);" value="파일삭제">
+						</li>
+					</ul>
+					
+					<input type="file" multiple="multiple" name="files">
+					<p>(Ctrl+선택 시 다중선택 가능)</p>
+					
+					<input type="hidden" id="fileIds" name="fileIds" value=""/>
+				</div>
+				<div class="btn-box">
+					<input class="btn-style" type="submit" id="btnUpdate" value="수정">
+					<input type="hidden" th:name="${_csrf.parameterName}"
+					th:value="${_csrf.token}" />
+					<a id="btnViewList" class="btn-style" th:href="@{/notice}">목록</a>
+				</div>
+			</form>
+		</div>		
+	</div>
+</div>
+	
+</body>
+</html>

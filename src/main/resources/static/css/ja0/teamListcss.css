@@ -1,0 +1,156 @@
+@charset "UTF-8";
+
+#top {
+	justify-content: space-between;
+}
+
+.topMenu img{
+	margin: 0px 20px;
+}
+
+#logout, #myProfile {
+	width: 30px;	
+}
+
+#logout:hover, #myProfile:hover {
+	cursor: pointer;
+}
+
+#cont{
+	padding-top: 130px;
+	justify-content: center;
+}
+
+.content {
+    display: flex;
+    width: 1450px;
+    justify-content: center;
+    padding-top: 50px;
+}
+
+.box, .addTeam {
+	position: relative;
+	width: 300px;
+	height: 350px;
+	text-align: center;
+	padding: 30px 20px;
+	margin: 13px;
+	background-color: #eee;
+	border-radius: 1em;
+	cursor: pointer;
+}
+
+.box:hover, .addTeam:hover {
+	background-color: rgba(255, 127, 39, 0.2);
+	border: none;
+}
+
+.info {
+	white-space: pre-wrap;
+}
+
+.name {
+	font-size: 19px;
+	font-weight: bold;
+	padding-top: 10px;
+}
+
+.addTeam {
+	font-size: 35px;
+	background-color: white;
+	border: 2px solid #FF7F27;
+	border-radius: 0.5em;
+	padding: 140px 10px;
+}
+
+#addTeamForm label {
+    font-weight: bold;
+    margin: 0.5rem 0 0 0;
+}
+
+.box img{
+	width: 150px;
+	height: 150px;
+}
+
+.box .delMenu {
+	position: absolute;
+    top: 5%;
+    right: 2%;
+    width: 20px;
+    height: 20px;
+}
+
+#addImg{
+	width: 40px;
+    position: absolute;
+    bottom: 9%;
+    left: 31%;
+}
+
+#teamPhoto {
+	display: none;
+}
+
+#deleteImg {
+	display: none;
+	width: 20px;
+    height: 20px;
+    padding-bottom: 2px;
+}
+
+.delBtn {
+	display: none;
+    position: absolute;
+    top: 45px;
+    right: -45px;
+    z-index: 1;
+}
+
+.showImg {
+	width: 200px;
+	height: 200px;
+}
+
+#addTeamModal .modal-body {
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+}
+
+
+#addTeamForm {
+    width: 55%;
+}
+
+#mainTitle {
+	padding: 5px;
+	width: 1450px;
+    display: flex;
+    align-content: center;
+    justify-content: space-between;
+    flex-direction: row-reverse;
+    align-items: center;
+}
+
+.pagingBtn img {
+	width: 30px;
+}
+
+.pagingBtn img:hover, #addImg:hover, #deleteImg:hover {
+	cursor: pointer;
+}
+
+#pagingBody {
+	display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#addTeamModal .modal-dialog {
+    max-width: 700px;
+}
+
+input[type=file] {
+    padding: 3px;
+}

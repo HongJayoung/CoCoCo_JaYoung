@@ -1,0 +1,49 @@
+@charset "UTF-8";
+
+.nav_menu3{
+	border-bottom: 3px solid tomato;
+}
+
+.inner_content {
+	padding-top: 40px;
+}
+
+.cList a, .table a {
+	color: black;
+}
+
+.cList a:hover, .table a:hover {
+	color: black;
+	text-decoration: none;
+}
+
+.cList img {
+	width: 25px;
+    height: 25px;
+	display: none;
+}
+
+.my_menu {
+	padding: 20px;
+}
+
+#categoryTitle {
+	font-size: 25px;
+	font-weight: bold;
+}
+
+#addCategory {
+	width: 30px;
+}
+
+#addCategory:hover, .cList img {
+	cursor: pointer;
+}
+
+.cList {
+	font-size: 20px;
+	padding: 10px;
+	display: flex;
+    justify-content: space-between;
+    align-items: center;
+}

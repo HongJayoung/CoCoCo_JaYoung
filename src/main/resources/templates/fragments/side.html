@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<div th:fragment = "side" class="side_list">
+	<div id="teamList">
+		<div th:each="tu:${session.teamList}" class="moveTeam" th:team-data="${tu.teamUserId.team.teamId}">
+			<img th:src="${tu.teamUserId.team.teamImg}?:@{/images/teamImg.png}" class="rounded-radius-small">
+			<span id="teamName" th:text="${tu.teamUserId.team.teamName}"></span>
+		</div>
+	</div>
+	
+	<div id="myMenu">
+		<img th:src="@{/images/home.svg}" alt="home" id="goHome">
+		<img th:src="@{/images/logout.svg}" alt="logout" id="logout">
+	</div>
+
+	<form id="logoutForm" method="post" th:action="@{/logout}"></form>
+	
+	<script>
+	$(function() {
+		$(".moveTeam").click(function() {
+			var teamId = $(this).attr("team-data");
+			
+			$.ajax({
+				type:"get",
+				url:"/setTeamId/"+teamId,
+				success: function() {
+					location.href="/main";
+				}	
+			});
+		});
+		
+		$("#goHome").click(function() {
+			location.href="/CoCoCo";
+		});
+		
+		$("#logout").click(function() {
+			$("#logoutForm").submit();
+		});
+	})
+	</script>
+</div>
+
+</html>

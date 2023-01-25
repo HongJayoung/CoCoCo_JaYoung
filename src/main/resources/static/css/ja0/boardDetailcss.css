@@ -1,0 +1,109 @@
+@charset "UTF-8";
+
+#title {
+	width: 100%;
+	font-size: 28px;
+	letter-spacing: -1.8px;
+}
+
+#writer {
+	float: right;
+}
+
+#regDate {
+	float: left;
+	padding: 10px 0px;
+}
+
+#regDate p {
+	display: inline;
+}
+
+#boardText {
+	clear: both;
+	padding: 10px 0px;
+	height: 300px;
+	border-bottom: 1px solid;
+	border-top: 1px solid;
+}
+
+#fileImg {
+	width: 18px;
+    height: 18px;
+    margin: 5px;
+}
+
+#file, #replies {
+	padding-top: 10px;
+}
+
+#replies, #fileTitle {
+	font-weight: bold;
+    font-size: 18px;
+}
+
+#buttonDiv {
+	display: flex;
+    justify-content: space-between;
+    margin: 5px 0px;
+}
+
+#replyDiv {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#newReply {
+	width: 93%;
+    height: calc(1.5em + 0.75rem + 10px);
+}
+
+#replyContent {
+	max-height: 230px;
+    overflow: auto;
+    margin-bottom: 10px;
+}
+
+/* 스크롤바 설정*/
+#replyContent::-webkit-scrollbar{
+    width: 5px;
+}
+
+/* 스크롤바 막대 설정*/
+#replyContent::-webkit-scrollbar-thumb{
+    height: 10%;
+    background-color: rgba(0,0,0,0);
+    border-radius: 10px;/* 스크롤바 둥글게 설정    */
+}
+
+/* 스크롤바 hover*/
+#replyContent:hover::-webkit-scrollbar-thumb{
+    background-color: #858585;
+}
+
+/* 스크롤바 뒷 배경 설정*/
+#replyContent::-webkit-scrollbar-track{
+    background-color: rgba(0,0,0,0);
+}
+
+.delReplyBtn{
+	margin: 0 10px;
+}
+
+.replyText{
+	margin: 10px 0px;
+    padding: 10px;
+    background-color: rgba(255,255,255,0.4);
+    border-radius: 0.5em;
+}
+
+.replyRegDate {
+	font-size: 12px;
+    color: gray;
+}
+
+.delReplyBtn, .modifyReplyBtn {
+	font-size: 12px;
+    padding: 2px 5px;
+}

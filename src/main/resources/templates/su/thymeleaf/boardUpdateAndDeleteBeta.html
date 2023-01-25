@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html xmlns:th="www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorator="~{/layout/layout1}"
+>
+<head>
+<style>
+.nav_menu3{
+	border-bottom: 3px solid tomato;
+}
+#boardDetail {
+	width: 850px;
+	margin: 0 auto;
+}
+.buttonColor{
+background-color: #FF7637;
+color: white;
+}
+
+
+#insertReply{
+position: relative;
+left:10%;
+
+width:80%;
+text-align:center;
+
+margin-top: 2%;
+}
+#replyPart1{
+float:left;
+width:15%;
+}
+#replyPart2{
+float:left;
+width:60%;
+}
+#replyPart3{
+float:left;
+width:20%;
+}
+#replyContent{
+/* width:60%; */
+}
+#replyList{
+padding-top: 2%;
+}
+#replyListRange{
+
+width: 900px;
+height: 150px;
+overflow:auto;
+}
+
+#boardMainSub1{
+	position:relative;
+	width: 850px;
+	margin: 0 auto;
+	margin-top: 40px;
+
+}
+#boardMainSub1 h1 {
+	font-family: "LeferiPoint-WhiteObliqueA", sans-serif;
+    font-weight: 600;
+    letter-spacing: -2px;
+	margin-bottom: 30px;
+}
+</style>
+
+<meta charset="utf-8">
+<title>board UD beta page</title>
+<script th:inline="javascript" th:src="@{'js/RESTreply.js'}"></script>
+<script th:inline="javascript">
+$(document).ready(function() {
+});
+
+window.onload = function() {
+	
+	var boardID = "[[${boardDetail.boardId}]]"; 	
+	replyREST.getAllReply(boardID,printList);
+	
+	document.getElementById("boardDeleteBtn").addEventListener('click',
+			hello);
+	document.getElementById("boardUCancel").addEventListener('click',updateCancle);
+}
+
+function hello() {
+	var boardID = document.getElementById("bid").value;
+	window.location.href = "/boardDeleteBeta?bid=" + boardID;
+}
+
+function updateCancle(){
+	window.location.href = "/boardSampleBeta";
+}
+
+function deleteReply(){
+	
+	var selectDelete = document.getElementsByName("selectDelete");
+	var replyDeleteID;
+	for(var i=0; i<selectDelete.length; i++){
+		if(selectDelete[i].checked){
+			replyDeleteID = selectDelete[i].value;
+		}
+	}
+	//alert("replyDeleteID: "+replyDeleteID);
+	
+	replyREST.getReplyAfterDelete(replyDeleteID, printList);
+}
+
+
+function printList(list) {
+	var userId = /*[[${session.user.userId}]]*/'';
+	var str = "<div id='replyListRange'>";
+	var replyObj;
+
+	for (var i = 0; i < list.length; i++) {
+		replyObj = list[i];
+		
+		str += "<div style=\"position:relative; left:25%; width:50%; padding-top:2%; background:white; \">"
+		
+		+"<div style=\"float:left; height:100px;\">"+"<img src='/images/sample0802.png' width='38'>" +"</div>"
+		
+		+"<div style=\"height:100px; width:50%; \">"
+		
+		+"<div>"+replyObj.user.name+" - "
+		
+		if(replyObj.user.userId == userId) {
+			str +=  "<input name=\"selectDelete\" type=\"checkbox\" onclick=(deleteReply())"+" value='"+replyObj.replyId+"'>"+"삭제"
+		}
+		
+		str +="</div>"
+		
+		+"<input id=\"replyDeleteID"+"\" type=\"hidden\" value=\""+replyObj.replyId+"\">"
+		
+		+"<div id=\"replyContent\">"+ "<span>"+replyObj.replyText+"</span>"+"</div>"
+		
+		+"<div>"+"<span>"+"<font size=\"2\" color=\"gray\">"+"등록일: "+formatDate(replyObj.replyUpdate)+"</font>"+"</span>"+"</div>"
+		
+		+"</div>"+"</div>"+"<br>";
+	}
+	
+	str +="</div>";
+	
+	$("#replyTable").html(str);
+}
+
+function formatDate(timeValue) {
+	var date = new Date(timeValue);
+	return date.getFullYear() + "-" + (date.getMonth() + 1) + "-"
+			+ date.getDate()+" "+date.getHours()+":"+date.getMinutes();
+}
+</script>
+</head>
+<body>
+	<div layout:fragment="my_menu" class="my_menu">
+		<div th:replace="~{su/thymeleaf/boardSide}"></div>
+	</div>
+
+<div layout:fragment="inner_content" class="inner_content">
+<div id="boardMainSub1">
+<h1>게시판</h1>
+</div>
+			
+<div id="boardDetail">
+		<div id="boardUpdate">
+			<form method="post" action="/postBoardUpdateBeta" class="form-group" enctype="multipart/form-data">
+				<input id="bid" name="boardID" type="hidden" th:value="${boardDetail.boardId}">
+				<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+				
+				<div class="form-group">
+				<label>title</label>
+				<input name="boardTitle" type="text" th:value="${boardDetail.boardTitle}" class="form-control">
+				</div>
+				
+				<div class="form-group">
+				<label>content</label>
+				<textarea name="boardText" th:text="${boardDetail.boardText}" class="form-control" rows="5"></textarea> 
+				</div>
+				
+				<span>(첨부파일 이름: <a th:href="@{/boardFileDown/}+${boardDetail.boardId}">[[${boardDetail.boardFile}?${boardDetail.boardFile.substring(109)}:null]]</a>)</span><br>
+				<input type="file" name="insertFile2" value="첨부파일">
+				<hr>
+				
+				<div class="form-group">
+				<input type="button" id="boardDeleteBtn" class="btn buttonColor" value="삭제">
+				</div>
+				
+				<div class="form-group">
+				<input type="submit" value="적용" class="btn buttonColor"> 
+				<input id="boardUCancel" type="button" value="목록 돌아가기" class="btn buttonColor">
+				</div>
+			</form>
+			<hr>
+		</div>
+
+	<br>
+	<br>
+	<br>
+	<br>
+
+		<div id="boardReply" >
+		
+		<div id="replyList" class="w3-light-grey">
+		<div id="replyTable"></div>
+		</div>
+
+			<div id="insertReply">
+				<form method="post" action="/postReplyInsertBeta">
+
+					<input name="replyBid" type="hidden" th:value="${boardDetail.boardId}">
+					<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+					
+					
+					<div id="replyPart1">
+					<img src="/images/sample0802.png" width="38">
+					</div>
+					
+					<div id="replyPart2">
+					<input name="replyText" type="text" class="form-control" placeholder="Add comment">
+					</div>
+					
+					<div id="replyPart3">
+					<input type="submit" value="등록하기" class="btn buttonColor">
+					</div>
+
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+
+<style>
+#myMenuArea{
+padding: 5% 2%;
+}
+#categoryList{
+list-style:none;
+}
+#addCategory {
+	display: none;
+}
+</style>
+</head>
+<body>
+
+	<div id="myMenuArea">
+			<h5>카테고리 목록</h5>
+			<hr>
+		<div id="addCategory">
+			<input type="text" id="cNameInsert" placeholder="카테고리 추가">
+			<button id="cNameInsertBtn" class="btn buttonColor">추가하기</button>
+			<hr>
+		</div>
+		
+			<div>
+			<ul id="categoryList" th:each="name:${session.cateName}">
+			<li><a id="catelistID" class="catelistID" th:category-data="${name.boardCategoryId.categoryId}">[[${name.categoryName}]]</a></li>
+			</ul>
+			</div>
+		</div>
+</body>
+</html>

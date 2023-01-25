@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" th:href="@{/css/ja0/teamUserListcss.css}" />
+</head>
+<body>
+	<div class="my_menu">
+		<div id="myProfile">
+			<img th:src="${session.user.image}?:@{/images/userImg.svg}" class="rounded-circle myProImg">
+			<img id="editProfile" class="rounded-circle" th:src="@{/images/editProfile.png}" data-toggle="modal" data-target="#MyPageModal">
+			<img class="admin" th:if="${session.teamUser.userRole == 'ADMIN'}" th:src="@{/images/crown.svg}">
+					
+			<div id="myInfo">
+				<div id="myName">[[${session.user.name}]]
+					<button th:text="${session.user.status}?:상태설정" class="btn btn-light btn-sm statusBtn" data-toggle="modal" data-target="#statusUpdateModal"></button>
+				</div>
+				[[${session.user.company}]]
+			</div>
+		</div>
+				
+		<h5 id="listTitle">팀원 ([[${session.userList.size()}]])</h5>
+		<div id="proList">
+			<div class="userProfile" th:each="tu:${session.userList}" th:if="${tu.teamUserId.user.userId != session.user.userId}">
+				<img th:src="${tu.teamUserId.user.image}?:@{/images/userImg.svg}" class="rounded-circle img">
+				
+				<img class="admin" th:if="${tu.userRole == 'ADMIN'}" th:src="@{/images/crown.svg}">
+				<p class="status" th:classappend="${tu.teamUserId.user.status == '출근'}?green:red">●</p>
+				
+				[[${tu.teamUserId.user.name}]]
+						
+				<div id="userInfo">
+					<img th:src="${tu.teamUserId.user.image}?:@{/images/userImg.svg}"class="rounded-circle img">
+					<img class="admin" th:if="${tu.userRole == 'ADMIN'}" th:src="@{/images/crown.svg}">
+							
+					<div id="uInfo">
+						<p id="userName">[[${tu.teamUserId.user.name}]] ( [[${tu.teamUserId.user.company}]] )<p>
+						<p>[[${tu.teamUserId.user.status}]]</p>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+</body>
+</html>

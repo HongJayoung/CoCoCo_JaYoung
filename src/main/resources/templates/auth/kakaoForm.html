@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<meta name="_csrf" th:content="${_csrf.token}" />
+<meta name="_csrf_header" th:content="${_csrf.headerName}" />
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" />
+<script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+<link rel="stylesheet" th:href="@{/css/login.css}" />
+
+<head>
+<style>
+#email {
+	width: 422px;
+	border-radius: 5px;
+}
+
+/* 아이디 중복체크 */
+.idCheck {
+	padding: 0;
+	width: 60px;
+}
+
+body {
+	margin: 0 auto;
+}
+
+.join_section {
+	width: 490px;
+	margin: 0 auto;
+	padding: 90px 0px 50px;
+}
+
+.join {
+	text-align: center;
+	margin-bottom: 20px;
+}
+
+button {
+	width: 486px;
+	height: 52px;
+}
+
+input {
+	width: 486px;
+	height: 52px;
+	margin-bottom: 20px;
+	padding-left: 20px;
+}
+
+#intro{
+	text-align: center;
+}
+</style>
+
+<script>
+$(function() {
+	$("#btn").click(final_Check);
+});
+
+/* 아이디 중복확인 */
+function idCheckFunc() {
+	var id = $("#email").val();
+	if (id.length == 0 || id == '') {
+		alert("이메일을 입력하세요");
+		return;
+	} 
+	
+	var token = $("meta[name='_csrf']").attr("content");
+	var header = $("meta[name='_csrf_header']").attr("content");
+
+	$.ajax({
+		url : '/auth/idCheck', 
+		type : 'post', 
+		data : {
+			"userId" : id
+		},
+		beforeSend : function(xhr) { 
+			xhr.setRequestHeader(header, token);
+		},
+		success : function(data) {
+			if (data == 1) {
+				alert("이미 사용중인 아이디 입니다.")
+				$("#idCheckBtn").attr("value", "N")
+			} else if (data == 0) {
+				$("#idCheckBtn").attr("value", "Y");
+				alert("사용 가능한 아이디 입니다.");
+			}
+		}
+	})
+}
+
+function final_Check() {
+	var id = $("#email").val();
+	var idCheck = $("#idCheckBtn").val();
+
+	if (id.length == 0 || id == '') {
+		alert("이메일을 입력하세요");
+		return false;
+
+	} else if (idCheck == "N") {
+		alert("이메일을 확인해주세요.");
+		return false;
+
+	}
+	
+	$("form").submit();
+	
+}
+</script>
+<meta charset="UTF-8">
+<title>KAKAO LOGIN</title>
+</head>
+<body>
+
+			
+<div class="join_section">
+		<div class=pannel-body>
+			<div id="intro">
+				<img src="/images/cococo-logo.png" alt="COCOCO">
+				<p>업무관리 워크스페이스, 코코코</p>
+			</div>
+			<h3 class="join">EMAIL을 입력해주세요!</h3>
+			<form method="post" action="/kakao/getEmail">
+				<input type="text" id="email" class="id_input" name="email" placeholder="EMAIL">
+				<button id="idCheckBtn" type="button" class="idCheck btn btn-outline-cococo" onclick="idCheckFunc();" value="N">중복확인</button>
+
+				<input type="hidden" name="name" th:value="${kakaoUser.name}"/>
+				<input type="hidden" name="img" th:value="${kakaoUser.img}"/>
+				<input type="hidden" name="id" th:value="${kakaoUser.id}"/>
+				<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+				<button id="btn" type="submit" class="join_btn btn btn-cococo" value="N">가입</button>
+			</form>
+		</div>
+	</div>
+</body>
+</html>

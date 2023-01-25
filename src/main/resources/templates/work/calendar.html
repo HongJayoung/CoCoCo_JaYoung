@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorator="~{/layout/layout1}">
+<head>
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge'>
+<title>CoCoCo | [[${session.teamUser.teamUserId.team.teamName}]]</title>
+<meta name='viewport' content='width=device-width, initial-scale=1'>
+
+<!-- fullcalendar -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.7.0/main.min.css">
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/fullcalendar@5.7.0/main.min.js"></script>
+
+<link rel="stylesheet" th:href="@{/css/gy/work.css}" />
+
+<script th:inline="javascript">
+	var token = $("meta[name='_csrf']").attr("content");
+	var header = $("meta[name='_csrf_header']").attr("content");
+	
+	var session = /*[[${session}]]*/'';
+	console.log("session 정보",session);
+	var team_id = /*[[${session.teamId}]]*/'';
+	var user_id = /*[[${session.user.userId}]]*/'';
+	var totaleventlist = [];
+	var myeventlist = [];
+	var workmanager = [];
+	var workDatail ;
+	var teamUserlist;
+	var myWorklist;
+	
+	var now = new Date();
+	var todaydate = now.getFullYear()+"-"+('00' + (now.getMonth()+1)).slice(-2)+"-"+('00' + (now.getDate())).slice(-2);
+	
+	$(function(){
+		$(".my_menu").attr("style", "display:none");
+		
+		//해당 팀의 담당자 모두 가져오기
+		$.ajax({
+			url:"/work/teamUserList/"+team_id,
+			type:"get",
+			success:function(responseData){
+				teamUserlist = responseData;
+				console.log("teamUserList",responseData);
+			}
+		});
+		
+		//나의 업무 모두 가져오기
+		$.ajax({
+			url:"/work/myWorkList/"+team_id +"/"+user_id,
+			type:"get",
+			success:function(responseData){
+				myWorklist = responseData;
+				console.log("my events", myWorklist);
+			}
+		});
+		
+		//전체 리스트 가져오기
+		var request = $.ajax({
+			type:"GET",
+			url:"/work/teamWorkList/"+team_id,
+			dataType:"json"
+		});
+		
+		//전체 리스트 응답시
+		request.done(function(responseData){
+			$.each(responseData, function(index,data){
+				workmanager = [];
+				for(var index in data.manager){
+					workmanager.push(data.manager[index].userId);
+				}
+				
+				if(workmanager.includes(user_id)){
+					workmanager = "user";
+				}else{
+					workmanager = "none";
+				}
+				
+				var date_end = dateEndPlus(data.workEnd);
+				
+				if(workmanager=="none"){
+					totaleventlist.push({
+						id: data.workId,
+						title : data.workTitle,
+						start : data.workStart,
+						end : date_end,
+						color : '#C9C8C8'
+					});
+				}else if(data.workStatus == 'finish'){
+					totaleventlist.push({
+						id: data.workId,
+						title : data.workTitle,
+						start : data.workStart,
+						end : date_end,
+						color : '#AAC2D8',
+						groupId : data.workStatus,
+					});
+				}else if(data.workStatus == 'ongoing'){
+					totaleventlist.push({
+						id: data.workId,
+						title : data.workTitle,
+						start : data.workStart,
+						end : date_end,
+						color : '#DAA88D',
+						groupId : data.workStatus
+					});
+				}else{
+					totaleventlist.push({
+						id: data.workId,
+						title : data.workTitle,
+						start : data.workStart,
+						end : date_end,
+						color : '#BCDAAA',
+						groupId : data.workStatus,
+					});
+				}
+			});
+			console.log("total events", totaleventlist);
+			
+			//캘린더 만들기
+			var calendarEl = document.getElementById('calendar');
+			var calendar = new FullCalendar.Calendar(calendarEl, {
+				initialView : 'dayGridMonth', //캘린더 형식
+				events : totaleventlist, //표시할 업무 events
+				headerToolbar: {
+				      left: 'helpButton totalButton,myWorkButton' ,
+				      center: 'prev,title,next',
+				      right: 'today addEventButton'
+				    },
+				customButtons : {
+					helpButton:{
+						text : "?", 
+						click : function(){
+							$("#helpModal").show();
+						}
+					},
+					myWorkButton:{
+						text : "My Work",
+						click : function() {
+							myeventlist=[]; //myeventlist 초기화
+							$.each(myWorklist, function(index,data){
+								var date_end = dateEndPlus(data.workEnd);
+								
+								if(data.workStatus == 'finish'){
+									myeventlist.push({
+										id: data.workId,
+										title : data.workTitle,
+										start : data.workStart,
+										end : date_end,
+										color : '#8FB4D1',
+										groupId : data.workStatus,
+									});
+								}else if(data.workStatus == 'ongoing'){
+									myeventlist.push({
+										id: data.workId,
+										title : data.workTitle,
+										start : data.workStart,
+										end : date_end,
+										color : '#DF926E',
+										groupId : data.workStatus,
+									});
+								}else{
+									myeventlist.push({
+										id: data.workId,
+										title : data.workTitle,
+										start : data.workStart,
+										end : date_end,
+										color : '#A3D38F',
+										groupId : data.workStatus,
+									});
+								}
+							});
+							calendar.removeAllEvents(); //event 초기화
+							calendar.addEventSource(myeventlist); //event 추가
+							calendar.render(); //다시 렌더링
+
+							$(".fc-totalButton-button").removeClass("btn-cococo");
+							$(".fc-totalButton-button").addClass("btn-outline-cococo");
+							$(".fc-myWorkButton-button").removeClass("btn-outline-cococo");
+							$(".fc-myWorkButton-button").addClass("btn-cococo");
+						}
+					},
+					totalButton:{
+						text : "All Work", 
+						click : function() {
+							calendar.removeAllEvents(); //event 초기화
+							calendar.addEventSource(totaleventlist); //event 추가
+							calendar.render(); //다시 렌더링
+
+							$(".fc-totalButton-button").removeClass("btn-outline-cococo");
+							$(".fc-totalButton-button").addClass("btn-cococo");
+							$(".fc-myWorkButton-button").removeClass("btn-cococo");
+							$(".fc-myWorkButton-button").addClass("btn-outline-cococo");
+						}
+					},
+					addEventButton : {
+						text : "업무 추가",
+						click : function() { 
+							$("#calendarAddModal").modal("show");
+							$("#calendar_start_date").val(todaydate);
+							$("#calendar_end_date").val(todaydate);
+							addEvent();
+						}
+					}
+				},
+				editable : false, // false로 변경 시 draggable 작동 x 
+				displayEventTime : false, // 시간 표시 x
+				//navLinks : true, //달력상의 날짜를 클릭할 수 있는지 여부, 클릭시 일달력/주달력으로 넘어감
+				dayMaxEventRows: true, // 요일셀의 높이로 이벤트 수를 제한, 나머지는 팝오버에 표시
+										// for all non-TimeGrid views(more) 행길이 설정 가능->contentHeight로 설정
+				//dayMaxEvents:4, //X
+				//contentHeight: 600, //행 길이
+				//height: "auto",
+				aspectRatio: 1.5,//종횡비 설정
+				//locale: 'ko', //한국어
+				selectable: true, //날짜 선택 가능
+				select: function(info) {
+					var date_end = dateEndMinus(info.endStr);
+					if(confirm("[" + info.startStr + ' ~ ' + date_end + "]업무를 추가하시겠습니까?")){
+				    	$("#calendarAddModal").modal("show");
+						$("#calendar_start_date").val(info.startStr);
+						$("#calendar_end_date").val(date_end);
+						
+						addEvent();
+					}
+			    },
+				eventClick : function(info){
+					var eventObj = info.event; //해당 event 정보
+					
+					$.ajax({
+						type:"GET",
+						url:"/work/workDetail/"+eventObj.id, //해당 work_id
+						dataType:"json",
+						success:function(responseData){
+							$("#calendarDetailModal").modal("show");
+							workDatail = responseData;
+							console.log("detail event", workDatail);
+							$(".detail_workId").val(workDatail.workId);
+							$(".detail_workTitle").val(workDatail.workTitle);
+							$(".detail_workText").val(workDatail.workText);
+							$(".detail_workDate").val(workDatail.workStart+" ~ "+workDatail.workEnd);
+							$(".detail_workStartDate").val(workDatail.workStart);
+							$(".detail_workEndDate").val(workDatail.workEnd);
+							
+							if(workDatail.workStatus=="plan"){
+								$(".detail_workStatus").val('대기');
+							}else if(workDatail.workStatus=="ongoing"){
+								$(".detail_workStatus").val('진행');
+							}else{
+								$(".detail_workStatus").val('완료');
+							}
+							workmanager = [];
+							var workmanagername = [];
+							for(var index in workDatail.manager){
+								workmanager.push(workDatail.manager[index].userId);
+								workmanagername.push(workDatail.manager[index].name);
+							}
+							var workmanagerfull = [];
+							for(i=0;i<workmanager.length;i++){
+								workmanagerfull.push(workmanagername[i]+"["+workmanager[i]+"]");
+							}
+							$(".detail_workMannager").text(workmanagerfull);
+						}
+					});	
+					if(eventObj.groupId == "plan"){
+						$(".WorkStatusUpdateModalBtn").attr("disabled", false);
+						$(".WorkStatusUpdateModalBtn").html('->진행');
+					}else if(eventObj.groupId == "ongoing"){
+						$(".WorkStatusUpdateModalBtn").attr("disabled", false);		
+						$(".WorkStatusUpdateModalBtn").html('->완료');				
+					}else if(eventObj.groupId == "finish"){
+						$(".WorkStatusUpdateModalBtn").attr("disabled", true);
+						$(".WorkStatusUpdateModalBtn").html('완료됨');		
+					}else{
+						$(".WorkStatusUpdateModalBtn").attr("style", "display : none");
+					}
+				},
+			});
+			calendar.render(); //캘린더 렌더링
+
+			$(".fc-totalButton-button").removeClass("fc-button-primary");
+			$(".fc-myWorkButton-button").removeClass("fc-button-primary");
+			$(".fc-addEventButton-button").removeClass("fc-button-primary");
+			$(".fc-prev-button").removeClass("fc-button-primary");
+			$(".fc-next-button").removeClass("fc-button-primary");
+			$(".fc-helpButton-button").removeClass("fc-button-primary");
+			
+			$(".fc-totalButton-button").addClass("btn-cococo");
+			$(".fc-myWorkButton-button").addClass("btn-outline-cococo");
+			$(".fc-addEventButton-button").addClass("btn-outline-cococo");
+			$(".fc-prev-button").addClass("btn-chevron");
+			$(".fc-next-button").addClass("btn-chevron");
+			$(".fc-helpButton-button").addClass("rounded-circle");			
+		});
+		
+		request.fail(function( jqXHR, textStatus ) {
+			  alert( "Request failed: " + textStatus );
+		});
+		
+		$("#WorkUpdateModalBtn").on("click", function() {
+			$("#calendarUpdateModal").modal("show");
+			
+			if($(".updatemanageroption").length){
+				$(".updatemanageroption").remove();
+			}else{
+			}
+
+			$.each(teamUserlist,function(index, data){
+				if(workmanager.includes(data.userId)){ //해당 user가 포함되어 있는 경우
+					$(".update_workMannager").append(
+							`<option class= "form-control updatemanageroption managerselected" value="${data.userId}">
+								${data.name}[${data.userId}]
+							</option>`); 
+				}else{ //해당 user가 포함되지 않은 경우
+					$(".update_workMannager").append(
+							`<option class= "form-control updatemanageroption" value="${data.userId}">
+								${data.name}[${data.userId}]
+							</option>`); 
+				}
+			});			
+		});
+		
+		$(".WorkStatusUpdateModalBtn").on("click", function() {
+			var work_id = $(".detail_workId").val();
+			var status = $(".detail_workStatus").val();
+			if(status=="대기"){
+				status="ongoing";
+			}else{
+				status='finish';
+			}
+			
+			$.ajax({
+				type:'put',
+				url:'/work/updateWorkStatus/'+work_id,
+				data:status,
+				contentType: "application/json; charset=utf-8",
+				beforeSend : function(xhr){
+					xhr.setRequestHeader(header, token);
+	            },
+	            success : function(data){
+					console.log("update status",data);
+					location.reload();
+				}
+			});
+		});
+		
+		$("#WorkUpdateBtn").on("click", function() {
+			var work_id = $(".update_workId").val();
+			var title = $(".update_workTitle").val();
+			var content = $(".update_workText").val();
+			var start_date = $(".update_workStartDate").val();
+			var end_date = $(".update_workEndDate").val();
+			var status = $(".update_workStatus").val();
+			if(status=="대기"){
+				status="plan";
+			}else if(status=="진행"){
+				status="ongoing";
+			}else{
+				status="finish";
+			}			
+			var manager = $(".update_workMannager").val();
+
+			if (title == null || title == "") {
+				alert("제목을 입력하세요.");
+			} else if (content == null || content == "") {
+				alert("내용을 입력하세요.");
+			} else if (content.length > 120) {
+				alert("최대 입력 가능한 글자수를 초과하였습니다.");
+			} else if (start_date == "" || end_date == "") {
+				alert("날짜를 입력하세요.");
+			} else if (new Date(end_date) - new Date(start_date) < 0) {
+				alert("종료일이 시작일보다 먼저입니다.");
+			} else {
+				if (manager == "" || manager == null) { 
+					manager = null;
+				}
+				var obj = {
+					"workTitle" : title,
+					"workText": content,
+					"workStart" : start_date,
+					"workEnd" : end_date,
+					"workStatus" : status,
+					"managerid" :manager
+				}
+				console.log("update object", obj);
+				
+				$.ajax({
+					type:'put',
+					url:'/work/updateWork/'+work_id,
+					data:JSON.stringify( obj),
+					contentType: "application/json; charset=utf-8",
+					beforeSend : function(xhr){
+						xhr.setRequestHeader(header, token);
+		            },
+		            success : function(data){
+						location.reload();
+					}
+				});
+			}
+		});
+		
+		$("#WorkDeleteBtn").on("click", function() {
+			var work_id = $(".detail_workId").val();
+			if(confirm("해당업무[" + work_id + "]를 삭제하시겠습니까?")){
+				$.ajax({
+					type:'delete',
+					url:'/work/deleteWork/'+work_id, 
+					contentType: "application/json; charset=utf-8",
+					beforeSend : function(xhr){
+						xhr.setRequestHeader(header, token);
+		            },
+		            success : function(data){
+						location.reload();
+					}
+				});
+			}else{}
+		});
+		
+		function addEvent(){
+			if($(".addmanageroption").length){
+				$(".addmanageroption").remove();
+			}else{
+				console.log("옵션이 존재하지 않았음");
+			}
+			
+			$.each(teamUserlist,function(index, data){
+				$("#calendar_manager").append(
+						`<option class="form-control addmanageroption" value="${data.userId}">
+							${data.name}[${data.userId}]
+						</option>`); 
+			});
+			
+			// modal의 추가 버튼 클릭 시
+			$("#addWork").on("click", function() { 
+				var title = $("#calendar_title").val();
+				var content = $("#calendar_content").val();
+				var start_date = $("#calendar_start_date").val();
+				var end_date = $("#calendar_end_date").val();
+				var status = $("#calendar_status").val();
+				var manager = $("#calendar_manager").val();
+
+				if (title == null || title == "") {
+					alert("제목을 입력하세요.");
+				} else if (content == null || content == "") {
+					alert("내용을 입력하세요.");
+				} else if (content.length > 120) {
+					alert("최대 입력 가능한 글자수를 초과하였습니다.");
+				} else if (start_date == "" || end_date == "") {
+					alert("날짜를 입력하세요.");
+				} else if (new Date(end_date) - new Date(start_date) < 0) {
+					alert("종료일이 시작일보다 먼저입니다.");
+				}  else if (manager == "" || manager == null) {
+					alert("업무 담당자를 입력하세요");
+				} else {
+					var obj = {
+						"workTitle" : title,
+						"workText": content,
+						"workStart" : start_date,
+						"workEnd" : end_date,
+						"workStatus" : status,
+						"managerid" :manager
+					}
+					console.log("insert object", obj);
+				
+					$.ajax({
+						type:'post',
+						url:'/work/addWork/'+team_id,
+						data:JSON.stringify( obj),
+						contentType: "application/json; charset=utf-8",
+						beforeSend : function(xhr){
+							xhr.setRequestHeader(header, token);
+			            },
+						success : function(data){
+							location.reload();
+						}
+					});
+				}
+			});
+		}
+		
+		function dateEndPlus(end){
+			var date_end1 = end.substr(0,8); 
+			var date_end2 = String(Number(end.substr(8))+1);
+			date_end2 = ('00' + date_end2).slice(-2);
+			return date_end1+date_end2;
+		}
+		function dateEndMinus(end){
+			var date_end1 = end.substr(0,8); 
+			var date_end2 = String(Number(end.substr(8))-1);
+			date_end2 = ('00' + date_end2).slice(-2);
+			return date_end1+date_end2;
+		}
+	});
+</script>
+</head>
+<body>
+	<div layout:fragment="inner_content">
+		<div class="inner_content">
+			<div id="helpModal">
+				<h2 class="cococo-title-text helptitle">help</h2>
+				<img th:src="@{/images/helpWorkImg.jpg}" class="">
+			</div>
+			<div id="calendarBox">
+				<div id="calendar"></div>
+			</div>
+			<!-- Work Add modal -->
+			<div class="modal fade" id="calendarAddModal" tabindex="-1" role="dialog"
+				aria-labelledby="exampleModalLabel" aria-hidden="true">
+				<div class="modal-dialog" role="document">
+					<div class="modal-content">
+						<div class="modal-header">
+							<h5 class="modal-title" id="exampleModalLabel">업무추가</h5>
+							<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+								<span aria-hidden="true">&times;</span>
+							</button>
+						</div>
+						<div class="modal-body">
+							<div class="form-group">
+								<label for="taskId" class="col-form-label">업무 제목</label> 
+								<input type="text" class="form-control" id="calendar_title" name="calendar_title"> 
+								<label for="taskId" class="col-form-label">업무 내용</label> 
+								<input type="text" class="form-control" id="calendar_content" name="calendar_content"> 
+								<label for="taskId" class="col-form-label">시작 날짜</label> 
+								<input type="date" class="form-control" id="calendar_start_date" name="calendar_start_date"> 
+								<label for="taskId" class="col-form-label">종료 날짜</label> 
+								<input type="date" class="form-control" id="calendar_end_date" name="calendar_end_date">
+								<label for="taskId" class="col-form-label">업무 상태</label> 
+								<select class="form-control" id="calendar_status" name="calendar_status">
+									<option class="form-control" value="plan">대기</option>
+									<option class="form-control" value="ongoing" >진행</option>
+									<option class="form-control" value="finish">완료</option>
+								</select>
+								<label for="taskId" class="col-form-label">업무 담당자(Ctrl클릭 후 중복선택가능)</label> 
+								<div class="workManager">
+									<select class="form-control" id="calendar_manager" name="calendar_manager" multiple="multiple" size="3">
+									</select>
+								</div>
+							</div>
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-warning" id="addWork">추가</button>
+							<button type="button" class="btn btn-secondary"
+								data-dismiss="modal" id="sprintSettingModalClose">취소</button>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- Work Detail modal -->
+			<div class="modal fade" id="calendarDetailModal" tabindex="-1" role="dialog"
+				aria-labelledby="exampleModalLabel" aria-hidden="true">
+				<div class="modal-dialog" role="document">
+					<div class="modal-content">
+						<div class="modal-header">
+							<h5 class="modal-title" id="exampleModalLabel">Detail</h5>
+							<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+								<span aria-hidden="true">&times;</span>
+							</button>
+						</div>
+						<div class="modal-body">
+							<div class="form-group">
+								<label for="taskId" class="col-form-label">업무번호</label> 
+								<input type="text" class="form-control detail_workId" id="calendar_workId" name="calendar_workId" readonly="readonly"> 
+								<label for="taskId" class="col-form-label">업무명</label> 
+								<input type="text" class="form-control detail_workTitle" id="calendar_title" name="calendar_title" readonly="readonly"> 
+								<label for="taskId" class="col-form-label">업무내용</label> 
+								<input type="text" class="form-control detail_workText" id="calendar_content" name="calendar_content" readonly="readonly"> 
+								<label for="taskId" class="col-form-label">업무기간</label> 
+								<input type="text" class="form-control detail_workDate" id="calendar_date" name="calendar_date" readonly="readonly">
+								<label for="taskId" class="col-form-label">업무상태</label> 
+								<input type="text" class="form-control detail_workStatus" id="calendar_status" name="calendar_status" readonly="readonly"> 
+								<label for="taskId" class="col-form-label">담당자</label> 
+								<textarea class="form-control detail_workMannager" id="calendar_manager" name="calendar_manager" readonly="readonly"></textarea>
+							</div>
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-warning WorkStatusUpdateModalBtn" id="WorkStatusUpdateModalBtn" disabled>상태바꾸기버튼</button>
+							<button type="button" class="btn btn-warning WorkUpdateModalBtn" id="WorkUpdateModalBtn">수정</button>
+							<button type="button" class="btn btn-secondary" data-dismiss="modal" id="WorkDeleteBtn">삭제</button>
+						</div>
+					</div>
+				</div>
+			</div>
+			
+			<!-- Work Update modal -->
+			<div class="modal fade" id="calendarUpdateModal" tabindex="-100" role="dialog"
+				aria-labelledby="exampleModalLabel" aria-hidden="true">
+				<div class="modal-dialog" role="document">
+					<div class="modal-content">
+						<div class="modal-header">
+							<h5 class="modal-title" id="exampleModalLabel">수정</h5>
+							<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+								<span aria-hidden="true">&times;</span>
+							</button>
+						</div>
+						<div class="modal-body">
+							<div class="form-group">
+								<label for="taskId" class="col-form-label">업무번호</label> 
+								<input type="text" class="form-control detail_workId update_workId" id="calendar_workId" name="calendar_workId" readonly="readonly"> 
+								<label for="taskId" class="col-form-label">업무명</label> 
+								<input type="text" class="form-control detail_workTitle update_workTitle" id="calendar_title" name="calendar_title"  > 
+								<label for="taskId" class="col-form-label">업무내용</label> 
+								<input type="text" class="form-control detail_workText update_workText" id="calendar_content" name="calendar_content" > 
+								<label for="taskId" class="col-form-label">업무시작일</label> 
+								<input type=date class="form-control detail_workStartDate update_workStartDate" id="calendar_start_date" name="calendar_start_date" > 
+								<label for="taskId" class="col-form-label">업무마감일</label> 
+								<input type="date" class="form-control detail_workEndDate update_workEndDate" id="calendar_end_date" name="calendar_end_date" >
+								<label for="taskId" class="col-form-label">업무상태</label> 
+								<select class="form-control detail_workStatus update_workStatus" id="calendar_status" name="calendar_status">
+									<option class="form-control" value="대기">대기</option>
+									<option class="form-control" value="진행">진행</option>
+									<option class="form-control" value="완료">완료</option>
+								</select>
+								<label for="taskId" class="col-form-label">일정 담당자(Ctrl클릭 후 중복선택가능)</label> 
+								<div class="workManager">
+									<select class="form-control update_workMannager" id="update_calendar_manager" name="calendar_manager" multiple="multiple" size="3">
+									</select>
+								</div>
+							
+							</div>
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-warning WorkUpdateBtn" id="WorkUpdateBtn">수정</button>
+							<button type="button" class="btn btn-secondary"
+								data-dismiss="modal" id="sprintSettingModalClose">취소</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

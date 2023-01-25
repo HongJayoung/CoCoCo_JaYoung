@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorator="~{/layout/layout1}">
+<head>
+<title>CoCoCo | [[${session.teamUser.teamUserId.team.teamName}]]</title>
+<meta charset="UTF-8">
+
+<style>
+.nav_menu2{
+	border-bottom: 3px solid tomato;
+}
+/* .my_menu{
+ display:none;
+}
+
+.inner_content {
+  width: 1418px;
+} */
+
+a {
+	text-decoration: none;
+}
+
+.wrap_notice {
+	width: 850px;
+	margin: 0 auto;
+	margin-top: 40px;
+}
+.wrap_notice h1 {
+    font-family: "LeferiPoint-WhiteObliqueA", sans-serif;
+    font-weight: 600;
+    letter-spacing: -2px;
+
+}
+#insertnotice {
+
+	background-color: #FF7637;
+	color: #ffffff;
+	border-radius: 0.25rem;
+	float: right;
+	padding: 0.3rem 0.5rem;
+	font-weight: 300;
+	font-size: 0.85rem;
+	letter-spacing: -0.9px;
+	text-align: center;
+	margin-bottom: 15px;
+}
+
+#insertnotice:hover {
+	background-color: #f26100;
+	text-decoration: none;
+	color: #ffffff;
+}
+.notice_table {
+	width: 850px;
+	
+}
+
+.notice_table tr {
+	text-align: center;
+}
+
+.notice_table th {
+	padding-bottom: 5px;
+}
+
+#noticeId{
+	width: 65px;
+}
+
+.noticeTitle {
+	width: 520px;
+	text-align: left;
+}
+
+.fixed {
+	text-align: center;
+}
+
+.noticeTitle img {
+	margin-left: 5px;
+}
+
+
+#regdate{
+	width:125px;
+}
+
+.notice_table tr {
+	height: 40px;
+	padding: 5px;
+}
+.notice_table td{
+	
+border-top: 1px solid #dee2e6;
+}
+
+.notice_table .title {
+	text-align: left;
+}
+
+.noticelink {
+	color: black;
+}
+
+.fixed a {
+	color: #FF7637;
+	font-weight: bold;
+}
+
+
+
+.notice_table_head {
+	background-color: #ffffff;
+	border-top: 1px solid #dee2e6;
+	border-bottom: 2px solid #dee2e6;
+}
+
+
+#paging {
+	text-align: center;
+}
+
+.pagination .page-item {
+	display: inline;
+}
+
+.page-item.active .page-link {
+	background-color: #FF7637;
+	border-color: #FF7637;
+	
+}
+.page-link {
+	color: #acacac;
+	padding: 0.1rem 0.5rem;
+	border: #acacac;
+}
+.paging-div {
+  padding: 15px 0 5px 10px;
+  display: table;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
+
+
+#input_search {
+	width: 340px;
+	height: 30px;
+	margin: 0 auto;
+	display: flex;
+	flex-direction: column;
+	flex-wrap: wrap;
+}
+
+#input_search > input {
+	flex: 1;
+}
+#searchType {
+	height: 35px;
+	border: 1px solid #acacac;
+}
+#searchKeyword {
+	width: 200px;
+	height: 35px;
+	border: 1px solid #acacac;
+}
+#searchBtn {
+	box-sizing: content-box;
+	width: 45px;
+	height: 31px;
+	border: 1px solid #acacac;
+	border-collapse: collapse;
+}
+</style>
+
+</head>
+<body>
+	<div layout:fragment="my_menu">
+		<div th:replace="~{/main/teamUserList}"></div>
+	</div>
+
+	<div class="inner_content" layout:fragment="inner_content">
+		<div class="wrap_notice">
+			<h1>공지사항</h1>
+			<a th:if="${session.teamUser.userRole == 'ADMIN'}" href="/notice/insert" id="insertnotice">작성하기</a>
+			<div class="wrap_noticelist">
+				<table class="notice_table table-hover" th:with="noticelist=${noticelist}">
+					<thead>
+						<tr class="notice_table_head">
+							<th>글번호</th>
+							<th>제목</th>
+							<th>작성자</th>
+							<th>작성일</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr th:if="${#lists.isEmpty(noticelist.result.getContent())}">
+							<td colspan="4">작성된 글이 없습니다.</td>
+						</tr>
+						<tr th:each="notice : ${noticelist.result.getContent()}">
+							<td id="noticeId" th:text="${notice.noticeId}"></td>
+							<td class="noticeTitle fixed" th:if="${notice.fixedYN}==1"
+								th:title="${notice.noticeText}"><a class="noticelink"
+								th:href="${notice.noticeId}"><img
+									src="/images/pin-icon-black.png"
+									width="15" height="15" alt="fixed">[[${notice.noticeTitle}]]</a>
+									<img th:if="${not#lists.isEmpty(notice.file)}" src="/images/disk-icon.png"
+									width="18px" alt="attachment"></td>
+							<td class="noticeTitle" th:if="${notice.fixedYN}!=1"
+								th:title="${notice.noticeText}"><a class="noticelink"
+								th:href="${notice.noticeId}"> [[${notice.noticeTitle}]]</a>
+								<img th:if="${notice.file.size()>0}" src="/images/disk-icon.png"
+								width="18px" alt="attachment"></td>
+							<td id="writer" th:text="${notice.user.name}"></td>
+							<td id="regdate"
+								th:text="${#dates.format(notice.noticeRegDate, 'yy-MM-dd HH:mm')}"></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			<div id="paging">
+				<div class="paging-div">
+					<ul class="pagination">
+						<li class="page-item" th:if="${noticelist.prevPage}"><a
+							th:href="${noticelist.prevPage.pageNumber}+1" class="page-link">&#171;
+								[[${noticelist.prevPage.pageNumber}+1]]</a></li>
+						<li class="page-item"
+							th:classappend="${p.pageNumber==noticelist.currentPageNum-1}?active:''"
+							th:each="p:${noticelist.pageList}"><a
+							th:href="${p.pageNumber}+1" class="page-link">[[${p.pageNumber}+1]]</a></li>
+						<li class="page-item" th:if="${noticelist.nextPage}"><a
+							th:href="${noticelist.nextPage.pageNumber}+1"  class="page-link">&#187;
+								[[${noticelist.nextPage.pageNumber}+1]]</a></li>
+					</ul>
+				</div>
+			</div>
+
+			<div id="input_search">
+				<form id="myfrm" th:action="@{/notice}" method="get">
+					<input type="hidden" name="page"
+						th:value="${noticelist.currentPageNum}"> <input
+						type="hidden" name="size"
+						th:value="${noticelist.currentPage.pageSize}"> <input
+						type="hidden" name="type" th:value="${pageVO.type}"> <input
+						type="hidden" name="keyword" th:value="${pageVO.keyword}">
+					<input type="hidden" name="keyword2" th:value="${pageVO.keyword2}">
+				</form>
+				<select id="searchType" onchange="changeInput()">
+					<option value="noticeTitleAndText"
+						th:selected="${pageVO.type=='noticeTitleAndText'}">전체</option>
+					<option value="noticeTitle"
+						th:selected="${pageVO.type=='noticeTitle'}">제목</option>
+					<option value="noticeText"
+						th:selected="${pageVO.type=='noticeText'}">내용</option>
+					<option value="noticeRegDate"
+						th:selected="${pageVO.type=='noticeRegDate'}">날짜</option>
+				</select>
+				<input type="text" id="searchKeyword">
+				<input type="date" id="sdate" name="keyword" style="display: none" class="date-type">
+				<input type="date" id="edate" name="keyword2" style="display: none" class="date-type">
+				<button id="searchBtn">검색</button>	
+			</div>
+
+			<script>
+				function changeInput() {
+					var searchType = document.getElementById("searchType");
+					var opt = searchType.options[searchType.selectedIndex].value;
+					if (opt == "noticeRegDate") {
+						document.getElementById("searchKeyword").style.display = "none";
+						document.getElementById("sdate").style.display = "inline-block";
+						document.getElementById("edate").style.display = "inline-block";
+					} else {
+						document.getElementById("searchKeyword").style.display = "inline-block";
+						document.getElementById("sdate").style.display = "none";
+						document.getElementById("edate").style.display = "none";
+					}
+
+				}
+
+				$(function() {
+
+					var formObj = $("#myfrm");
+
+					$(".pagination a").click(
+							function(e) {
+								e.preventDefault();
+								formObj.find("[name='page']").val(
+										$(this).attr('href'));
+								//formObj.attr("action", "/notice/list");
+								formObj.submit();
+							});
+
+					$("#searchBtn").click(
+							function() {
+								var typeStr = $("#searchType")
+										.find(":selected").val();
+								formObj.find("[name='type']").val(typeStr);
+
+								if (typeStr == "noticeRegDate") {
+
+									var keywordSdate = $("#sdate").val();
+									var keywordEdate = $("#edate").val();
+									$("#myfrm").find("[name='keyword']").val(
+											keywordSdate + " 00:00:00");
+									$("#myfrm").find("[name='keyword2']").val(
+											keywordEdate + " 23:59:59");
+								} else {
+									var keywordStr = $("#searchKeyword").val();
+									$("#myfrm").find("[name='keyword']").val(
+											keywordStr);
+								}
+
+								formObj.find("[name='page']").val(1);
+								formObj.submit();
+							});
+
+					$(".noticelink")
+							.click(
+									function(e) {
+										e.preventDefault();
+										var noticeId = $(this).attr("href");
+
+										formObj.attr("action","/notice/detail");
+										formObj.append("<input type='hidden' name='noticeId' value='"+noticeId+"'>");
+										formObj.submit();
+									});
+
+				});
+			</script>
+
+		</div>
+	</div>
+</body>
+</html>

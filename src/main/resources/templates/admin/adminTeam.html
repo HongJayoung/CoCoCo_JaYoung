@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	  layout:decorate="~{/layout/layout1.html}">
+<head>
+<meta charset="UTF-8">
+
+<link rel="stylesheet" th:href="@{/css/ja0/adminTeamcss.css}" />
+
+<title>CoCoCo | [[${session.team.teamName}]]</title>
+
+<style>
+</style>
+
+<script type="text/javascript">
+	$(function() {
+		var msg = "[[${msg}]]";
+		if(msg != "") {
+			alert(msg);
+		}
+		
+		$("#modifyForm").click(modifyForm);
+		$("#deleteBtn").click(deleteTeam);
+	})
+	
+	//수정 form 보여주기
+	function modifyForm() {
+		$.ajax({
+			type:"get",
+			url:"/admin/modify",
+			success: function(resData) {
+				$("#box").html(resData);
+			}
+		})
+	}
+
+	function deleteTeam() {
+		if(confirm("워크스페이스를 삭제하시겠습니까?\n삭제된 정보는 복구되지않습니다.")) {
+			location.href="/admin/delete";
+		}
+	}
+</script>
+</head>
+<body>
+<div layout:fragment="my_menu" class="my_menu">
+	<div th:replace="~{admin/adminSide}"></div>
+</div>
+
+<div layout:fragment="inner_content">
+	<div class="inner_content">
+		<div id="box">
+			<img th:src="${session.team.teamImg}?:@{/images/teamImg.png}" class="showImg rounded">
+			
+			<div id="teamInfo">
+				<label>WORKSPACE NAME</label>
+				<p>[[${session.team.teamName}]]</p>
+				
+				<label>WORKSPACE INFO</label>
+				<p id="info">[[${session.team.teamInfo}]]</p>
+				
+				<label>CREATED DATE</label>
+				<p>[[${#dates.format(session.team.createDate,'yyyy-MM-dd')}]]</p>
+				
+				<label>CREATOR</label>
+				<p>[[${session.team.user.name}]] ([[${session.team.user.userId}]])</p>
+				
+				<button class="btn btn-cococo" id="modifyForm">수정</button>
+				<button class="btn btn-light" id="deleteBtn">워크스페이스 삭제</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+</body>
+</html>

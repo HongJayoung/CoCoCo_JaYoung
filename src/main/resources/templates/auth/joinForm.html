@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+
+<html xmlns:th="http://www.thymeleaf.org">
+<!--//ajax csrf//-->
+<meta name="_csrf" th:content="${_csrf.token}" />
+<meta name="_csrf_header" th:content="${_csrf.headerName}" />
+
+<link rel="stylesheet"
+	href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" />
+<script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+<script
+	src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+<link rel="stylesheet" th:href="@{/css/login.css}" />
+<head>
+<style>
+#pw2 {
+	margin: 0;
+}
+
+#pwMsg {
+	padding: 1px 2px 1px 20px;
+}
+
+#userId {
+	width: 422px;
+}
+
+.idCheck {
+	padding: 0;
+	width: 60px;
+}
+
+body {
+	margin: 0 auto;
+}
+
+.join_section {
+	width: 490px;
+	margin: 0 auto;
+	padding: 90px 0px 50px;
+}
+
+.join {
+	text-align: center;
+	margin-bottom: 20px;
+}
+
+.join_btn {
+	margin: 0 0 0 4px;
+}
+
+button {
+	width: 486px;
+	height: 52px;
+}
+
+input {
+	width: 486px;
+	height: 52px;
+	margin-bottom: 20px;
+	padding-left: 20px;
+}
+</style>
+<script>
+	$(function() {
+		$("#pw").on("keyup", checkPW);
+		$("#pw2").on("keyup", checkPW);
+		$("#btn").click(final_Check);
+	});
+
+	function final_Check() {
+		var id = $(".id_input").val();
+		var pw1 = $(".pw_input").val();
+		var pw2 = $(".pw2_input").val();
+		var name = $(".name_input").val();
+		var idCheck = $("#idCheckBtn").val();
+
+		if (id.length == 0 || id == '') {
+			alert("아이디를 입력하세요")
+
+		} else if (idCheck == "N") {
+			alert("아이디를 확인해주세요.")
+
+		} else if (name.length == 0 || name == '') {
+			alert("이름을 입력하세요")
+
+		} else if (pw.length == 0 || pw == '') {
+			alert("비밀번호를 입력하세요")
+
+		} else if (pw1 != pw2) {
+			alert("비밀번호를 확인하세요")
+
+		} else {
+			$("#btn").attr('type', 'submit');
+		}
+
+	}
+
+	function checkPW() {
+		var pw1 = $("#pw").val();
+		var pw2 = $("#pw2").val();
+
+		if (pw1 == pw2) {
+
+			if (pw1.length == 0 || pw1 == '') {
+				$("#pwMsg").html("비어있음")
+				$("#pwMsg").css("color", "white")
+
+			} else if (pw1 == pw2) {
+				$("#pwMsg").html("비밀번호가 일치합니다.")
+				$("#pwMsg").css("color", "green")
+			}
+		} else {
+			$("#pwMsg").html("비밀번호가 일치하지 않습니다.")
+			$("#pwMsg").css("color", "red")
+			$("#btn").attr("value", "N")
+		}
+	}
+
+	function idCheckFunc() {
+		//ajax csrf//		
+		var token = $("meta[name='_csrf']").attr("content");
+		var header = $("meta[name='_csrf_header']").attr("content");
+
+		$.ajax({
+			url : '/auth/idCheck',
+			type : 'post',
+			data : {
+				"userId" : $("#userId").val()
+			},
+
+			beforeSend : function(xhr) { /*데이터를 전송하기 전에 헤더에 csrf값을 설정한다*/
+				xhr.setRequestHeader(header, token);
+			},
+
+			success : function(data) {
+				if (data == 1) {
+					alert("이미 사용중인 아이디 입니다.")
+					$("#idCheckBtn").attr("value", "N")
+					console.log("N")
+
+				} else if (data == 0) {
+					$("#idCheckBtn").attr("value", "Y");
+					alert("사용 가능한 아이디 입니다.");
+					console.log("Y")
+				}
+			}
+		})
+	}
+</script>
+<title>회원가입 페이지</title>
+<meta charset="utf-8" />
+</head>
+<body>
+	<div class="join_section">
+		<div class=pannel-body>
+			<h2 class="join">회원가입</h2>
+			<form method="post" action="joinProc">
+
+				<p>
+					<label for="userId"></label> <input type="text" id="userId"
+						class="id_input" name="userId" placeholder="아이디">
+					<button id="idCheckBtn" type="button"
+						class="idCheck btn-outline-cococo" onclick="idCheckFunc();"
+						value="N">중복확인</button>
+				</p>
+
+				<p>
+					<label for="company"></label> <input type="text" id="company"
+						class="company" name="company" placeholder="소속" />
+				</p>
+
+				<p>
+					<label for="name"></label> <input type="text" id="name"
+						class="name_input" name="name" placeholder="이름" />
+				</p>
+
+				<p>
+					<label for="pw"></label> <input type="password" id="pw"
+						class="pw_input" name="pw" placeholder="비밀번호" />
+				</p>
+
+				<p>
+					<label for="pw2"></label> <input type="password" class="pw2_input"
+						id="pw2" name="pw2" placeholder="비밀번호 확인" /><br> <span
+						id="pwMsg"> </span>
+				</p>
+
+				<input type="hidden" th:name="${_csrf.parameterName}"
+					th:value="${_csrf.token}" />
+				<button id="btn" type="button" class="join_btn btn-cococo" value="N">가입</button>
+			</form>
+		</div>
+	</div>
+	<!-- join_section -->
+</body>
+</html>

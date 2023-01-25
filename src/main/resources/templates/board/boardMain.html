@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	  layout:decorate="~{/layout/layout1.html}">
+<head>
+<meta charset="UTF-8">
+<title>CoCoCo | [[${session.team.teamName}]]</title>
+<style>
+
+.inner_content h1 {
+	font-family: "LeferiPoint-WhiteObliqueA", sans-serif;
+    font-weight: 600;
+    letter-spacing: -2px;
+}
+
+table {
+	text-align: center;
+}
+
+#thead {
+	background-color: white;
+}
+
+#board2 {
+	width: 60%;
+}
+
+#title {
+	float: left;
+}
+
+#newBoard {
+	float: right;
+}
+
+.cList:hover .modifyCategory {
+	display: block;
+}
+
+</style>
+
+<script>
+$(function() {
+	$("#newBoard").click(newBoard);
+})
+
+function newBoard() {
+	location.href="/board/insert/[[${categoryId}]]";
+}
+</script>
+</head>
+<body>
+<div layout:fragment="my_menu" class="my_menu">
+	<div th:replace="~{/board/boardSide}"></div>
+</div>
+	
+<div layout:fragment="inner_content" class="inner_content">
+	<h1 id="title">게시판 <span th:if="${categoryId}">([[${category.categoryName}]])</span></h1>
+	<button class="btn btn-cococo" id="newBoard" th:if="${categoryId}">작성하기</button>
+	<table class="table table-hover">
+		<tr id="thead">
+			<td id="board1">번호</td>
+			<td id="board2">제목</td>
+			<td id="board3">작성자</td>
+			<td id="board4">작성일</td>
+		</tr>
+		
+		<tr th:each="board:${boardList}">
+			<td th:text="${board.boardId}"></td>
+			<td>
+				<a th:href="@{/board/}+${board.boardId}">[[${board.boardTitle}]]</a>
+				<!-- <img th:src="@{/images/disk-icon.png}" th:if="${board.boardFile}" id="fileImg"> -->
+			</td>
+			<td>[[${board.user.name}]]</td>
+			<td th:text="${#dates.format(board.boardRegDate, 'yy-MM-dd HH:mm')}"></td>
+		</tr>			
+	</table>
+</div>
+</body>
+</html>

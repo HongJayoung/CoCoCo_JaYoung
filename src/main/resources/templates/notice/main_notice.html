@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<style>
+
+.wrap_notice {
+	text-align: left;
+	letter-spacing: -0.95px;
+	overflow: hidden;
+}
+.wrap_notice a {
+	text-align: left;
+	letter-spacing: -0.5px;
+	color: #000000;
+	font-size: 17px;
+}
+.wrap_notice a:hover {
+	text-decoration: none;
+	font-weight: 800;
+	font-size: 18px;
+}
+
+.wrap_notice_title {
+	height: 30px;
+}
+.notice_table {
+	
+	font-weight: 200;
+	
+}
+.wrap_notice > h2 , .wrap_notice_title > h2{
+	float: left;
+}
+
+.wrap_notice #btnMoreNotice {
+	font-weight: 300;
+	float: right;
+	padding: 0.175rem 0.55rem;
+	font-size: 0.85rem;
+	border-radius: 0.25rem;
+	cursor: pointer;
+	width: 64px;
+	height: 30px;
+	text-align: center;
+	color: #ffffff;
+	float: right;
+	
+}
+
+
+.notice_table {
+	width: 100%;
+}
+
+.notice_table .main_notice_title {
+	display: block;
+	width: 270px;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	padding: 15px 10px;
+	
+}
+
+.notice_table .main_notice_title img {
+	margin-left: 5px;
+}
+
+
+
+.notice_table .main_notice_date {
+	width: 20%;
+}
+
+.notice_table {
+	list-style: none;
+}
+
+.msg-null {
+	box-sizing: content-box;
+	font-size: 1rem;
+	text-align: center;
+	color: #808080;
+	margin-top: 30px;
+}
+.wrap_noticelist, .msg-null{
+	clear:both;
+}
+</style>
+</head>
+<body>
+	<div>
+		<div class="wrap_notice">
+			<div class="wrap_notice_title">
+				<h2 class="cococo-title-text">공지사항</h2>
+				<a class="btn-cococo" id="btnMoreNotice" th:href="@{/notice}">더보기</a>
+			</div>
+			
+			<div class="wrap_noticelist"  th:with="mnlist=${mnlist}">
+				<p class="msg-null" th:if="${#lists.isEmpty(mnlist)}">공지가 존재하지 않습니다.</p>
+				<table class="notice_table" th:if="${!#lists.isEmpty(mnlist)}"> 
+					<tbody>
+						<tr th:each="notice:${mnlist}" th:if="${noticeStat.index}<6">
+							<td class="main_notice_title" th:if="${notice.fixedYN}==1" th:title="${notice.noticeText}">
+								<a class="noticelink fixed" th:href="@{/main/notice/detail/}+${notice.noticeId}"><img
+									src="/images/pin-icon-black.png" alt="fixed"
+									width="15" height="15"> [[${notice.noticeTitle}]]</a>
+									<img th:if="${not#lists.isEmpty(notice.file)}" src="/images/disk-icon.png" width="18px"
+									alt="attachment"></td>
+							<td class="main_notice_title" th:if="${notice.fixedYN}!=1"
+								th:title="${notice.noticeText}"><a class="noticelink"
+								th:href="@{/main/notice/detail/}+${notice.noticeId}">[[${notice.noticeTitle}]]</a>
+								<img th:if="${not#lists.isEmpty(notice.file)}" src="/images/disk-icon.png"
+								width="18px" alt="attachment"></td>
+							<td class="main_notice_date"
+								th:text="${#dates.format(notice.noticeRegDate, 'yy-MM-dd')}"></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+
+</body>
+</html>

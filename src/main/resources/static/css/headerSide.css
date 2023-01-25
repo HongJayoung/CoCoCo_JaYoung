@@ -1,0 +1,226 @@
+@charset "UTF-8";
+
+body, html {
+	height: 100vh;
+	width: 100%;
+}
+
+/******************* Header font *******************/
+@font-face {
+    font-family: 'LeferiPoint-WhiteObliqueA';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2201-2@1.0/LeferiPoint-WhiteObliqueA.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+.cococo-title-text {
+    margin-top: 8px;
+    font-family: "LeferiPoint-WhiteObliqueA", sans-serif;
+    font-size: 1.2em;
+    font-weight: 600;
+    }
+    
+/******************* Header font *******************/
+	
+/******************* header *******************/
+#top {
+    position: fixed;
+	padding: 0px 23px;
+	width: 100%;
+	height: 64px;
+	background-color:#fff;
+	display:flex;
+	align-items: center;
+   	box-shadow: 0 0px 0px -1px, 0 1px 4px -2px;
+   	z-index: 999;
+}
+
+.nav > div:hover {
+	 border-bottom: 3px solid tomato;
+	
+}
+
+
+.nav span {
+	line-height: 72px;
+	font-size: 20px;
+}
+
+.nav a {
+	display: inline-block;
+	width: 160px;
+	height: 64px;
+	color: #000;
+	cursor: pointer;
+	text-decoration: none;
+	text-align: center;
+}
+
+.team_logo {
+	margin-right: 185px;
+	width: 190px;
+	height: 40px;
+/* 	background-color: tomato; */
+}
+/******************* header *******************/
+
+/******************* side *******************/
+#side_bar{
+	display: flex;
+	height: 94vh;
+}
+
+.side_list {
+	width: 80px;
+	height: 100%;
+	background-color: #e7ebf2;
+}
+
+.my_menu {
+	width: 318px;
+	height: 94vh;
+	background-color: #fff;
+}
+
+/******************* side *******************/
+/******************* cont *******************/
+#cont {
+	display: flex;
+	padding-top: 64px;
+}
+	
+.inner_content {
+	width: 1100px;
+	height: 94vh;
+	padding-left: 51px;
+	padding-right: 51px;
+	background-color: #F5F5F6;
+}
+
+.chat {
+	width: 400px;
+    height: 94vh;
+}
+
+/******************* cont *******************/
+
+/******************* side_list *******************/
+#myMenu{
+    display: flex;
+    position: absolute;
+    flex-direction: column;
+	bottom: 0%;
+	padding: 10px 9px;
+}
+
+.moveTeam {
+	position: relative;
+	
+}
+
+.moveTeam img {
+	margin: 10px;
+	width: 40px;
+	height: 40px;
+}
+
+.moveTeam:hover {
+	cursor: pointer;
+}
+
+#teamName {
+	position: absolute;
+    display: none;
+    top: 0%;
+    left: 0%;
+    width: 60px;
+    height: 60px;
+    background-color: rgba(231, 235, 242, 0.8);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 15px;
+    text-align: center;
+    padding: 19px 0;
+    font-weight: bold;
+}
+
+.moveTeam:hover #teamName{
+	display: block;
+}
+
+#myMenu img {
+	margin: 15px 17px;
+	width: 30px;
+	height: 30px;
+}
+
+#myMenu img:hover {
+	cursor: pointer;	
+}
+
+#teamList{
+	margin: 5px;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    height: 60%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* 스크롤바 설정*/
+#teamList::-webkit-scrollbar{
+    width: 5px;
+}
+
+/* 스크롤바 막대 설정*/
+#teamList::-webkit-scrollbar-thumb{
+    height: 10%;
+    background-color: rgba(0,0,0,0);
+    border-radius: 10px;/* 스크롤바 둥글게 설정    */
+}
+
+/* 스크롤바 hover*/
+#teamList:hover::-webkit-scrollbar-thumb{
+    background-color: #858585;
+}
+
+/* 스크롤바 뒷 배경 설정*/
+#teamList::-webkit-scrollbar-track{
+    background-color: rgba(0,0,0,0);
+}
+/******************* side_list *******************/
+
+/******************* button *******************/
+.btn-cococo {
+	color: #fff;
+    background-color: #FF7F27;
+    border-color: #FF7F27;
+}
+
+.btn-cococo:hover {
+	color: #fff;
+	background-color: #f26100;
+    border-color: #f26100;
+}
+	
+.btn-outline-cococo {
+	color: #FF7F27;
+    background-color: #fff;
+    border: 2px solid #FF7F27;
+}
+
+.btn-outline-cococo:hover {
+	color: #fff;
+	background-color: #FF7F27;
+    border-color: #FF7F27;
+	
+}
+/******************* button *******************/
+
+.rounded-radius{
+	border-radius: 1.5rem;
+}
+.rounded-radius-small{
+	border-radius: 0.75rem;;
+}

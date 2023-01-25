@@ -1,0 +1,28 @@
+@charset "UTF-8";
+
+/******************* button *******************/
+.btn-cococo {
+	color: #fff;
+    background-color: #FF7F27;
+    border-color: #FF7F27;
+}
+
+.btn-cococo:hover {
+	color: #fff;
+	background-color: #f26100;
+    border-color: #f26100;
+}
+	
+.btn-outline-cococo {
+	color: #FF7F27;
+    background-color: #fff;
+    border: 2px solid #FF7F27;
+}
+
+.btn-outline-cococo:hover {
+	color: #fff;
+	background-color: #FF7F27;
+    border-color: #FF7F27;
+	
+}
+/******************* button *******************/

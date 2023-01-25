@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+	<div id="teamImg">
+		<img th:src="${session.team.teamImg}?:@{/images/teamImg.png}" class="showImg rounded">
+		<label for="img">
+			<img th:src="@{/images/addFile.png}" id="addImgBtn" class="rounded-circle">
+		</label>
+	</div>
+	
+	<div id="teamInfo">
+		<form id="modifyForm" action="/admin/modify" method="post" enctype="multipart/form-data">
+			<input type="file" name="newPhoto" id="img" class="form-control" accept="image/*">
+			<input type="hidden" name="teamId" th:value="${session.team.teamId}">
+			
+			<div class="form-group">
+				<label>WORKSPACE NAME</label>
+				<input type="text" name="teamName" class="form-control" th:value="${session.team.teamName}">
+			</div>
+			
+			<div class="form-group">
+				<label>WORKSPACE INFO</label>
+				<textarea class="form-control" name="teamInfo" rows="2">[[${session.team.teamInfo}]]</textarea>
+			</div>
+			
+			<div class="form-group">
+				<label>WORKSPACE IMAGE</label>
+				<img id="delImg" th:src="@{/images/deleteTeamImg.svg}">
+				<input type="text" name="fileName" id="fileName" class="form-control"
+					th:value="${session.team.teamImg}?${session.team.teamImg.substring(110)}:null" readonly="readonly">
+			</div>
+			
+			<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+			
+			<input type="submit" class="btn btn-cococo" value="수정">
+			<input type="button" class="btn btn-light reloadBtn" value="취소">
+		</form>
+	</div>
+	
+
+<script>
+$(function() {
+	if("${team.teamImg}" != "") {
+		$("#delImg").show();
+	}
+	
+	$("#modifyForm").submit(isEmpty);
+	$("#delImg").click(deleteImg);
+	$(".reloadBtn").click(reload);
+	$("#img").change(makeView);
+})
+
+function isEmpty() {
+	var teamName = $("input[name='teamName']");
+	if(teamName.val() == "") {
+		alert("워크스페이스 이름은 필수입니다!");
+		teamName.focus();
+		return false; 
+	}
+}
+
+function deleteImg() {
+	$(".showImg").attr("src", "/images/teamImg.png");
+	$("#fileName").val(null);
+	$("#delImg").hide();
+}
+
+function reload() {
+	location.reload();
+}
+	
+function makeView(e) {
+	//썸네일
+	var reader = new FileReader();
+
+	reader.onload = function(e) {
+		$(".showImg").attr("src", e.target.result);
+	};
+
+	reader.readAsDataURL(e.target.files[0]);
+	
+	//파일 이름
+	var fileName = $(this).val().split("\\").pop();
+	$("#fileName").val(fileName);
+}
+	
+</script>
+</html>

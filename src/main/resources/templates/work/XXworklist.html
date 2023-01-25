@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorator="~{/work/layout/layout1}">
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<th:block layout:fragment="style1"></th:block>
+</head>
+<body>
+	<div class="panel panel-default" layout:fragment="content">
+		<h1>업무 목록</h1>
+		<!-- <h1 th:text="${param.team.teamId}"></h1> -->
+		<table>
+			<tr>
+				<td></td>
+				<td>업무id</td>
+				<td>제목</td>
+				<td>내용</td>
+				<td>시작일</td>
+				<td>마감일</td>	
+				<td>상태</td>		
+			</tr>
+			<tr th:each="work, rowStatus : ${wlist}">
+				<td th:text="${rowStatus.count}"></td>
+				<td th:text="${work.workId}">게시판번호</td>
+				<td th:text="${work.workTitle}">제목</td>
+				<td th:text="${work.workText}">내용</td>
+				<td th:text="${work.workStart}">시작일</td>
+				<td th:text="${work.workEnd}">마감일</td>
+				<td th:text="${work.workStatus}">상태</td>	
+			</tr>
+		</table>
+		<table>
+			<tr>
+				<td></td>
+				<td>업무id</td>
+				<td>상태</td>		
+			</tr>
+			<!-- <tr th:each="workm, rowStatus : ${wmlist}">
+				<td th:text="${rowStatus.count}"></td>
+				<td th:text="${workm.workId}">게시판번호</td>	
+			</tr> -->
+		</table>
+	</div>
+</body>
+</html>

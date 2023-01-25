@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+
+<html xmlns:th="http://www.thymeleaf.org">
+<!--//ajax csrf//-->
+<meta name="_csrf" th:content="${_csrf.token}" />
+<meta name="_csrf_header" th:content="${_csrf.headerName}" />
+
+<link rel="stylesheet"
+	href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" />
+
+<head>
+<style>
+body {
+	text-align: center;
+}
+
+.panel-body {
+	margin-top: 150px;
+}
+
+#intro img {
+	margin-bottom: 15px;
+}
+
+#intro p {
+	margin-bottom: 40px;
+}
+
+.auth_section {
+	padding: 90px 0px 50px;
+}
+
+#login_btn {
+	margin-bottom: 20px;
+}
+
+#cacao-login-btn {
+	background-image: url("/images/kakao_login_medium_wide.png");
+	background-repeat: no-repeat;
+}
+
+button {
+	width: 486px;
+	height: 52px;
+}
+
+#loginFrm {
+	margin-bottom: 30px;
+}
+
+#loginFrm input {
+	border: 1px solid #acacac;
+	border-collapse: collapse;
+}
+
+#loginFrm input:focus {
+	border: 1px solid #acacac;
+	outline-color: #FF7F27;
+}
+
+#loginFrm #userId {
+	margin-bottom: -11px;
+	border-radius: 10px 10px 0 0;
+}
+
+#loginFrm #pw {
+	border-radius: 0 0 10px 10px;
+}
+
+input {
+	width: 486px;
+	height: 52px;
+	padding-left: 20px;
+}
+</style>
+<script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+<link rel="stylesheet" th:href="@{/css/login.css}" />
+<script
+	src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+<script>
+	function idCheckFunc() {
+		//ajax csrf//		
+		var token = $("meta[name='_csrf']").attr("content");
+		var header = $("meta[name='_csrf_header']").attr("content");
+		var id_pass = $("#userId").val();
+		var pw_pass = $("#pw").val();
+
+		if (id_pass == "") {
+			alert("아이디는 필수입력");
+			$("#userId").focus();
+			return false;
+		}
+		if (pw_pass == "") {
+			alert("비밀번호는 필수입력");
+			$("#pw").focus();
+			return false;
+		}
+	}
+
+	function idCheckFunc() {
+		//ajax csrf//		
+		var token = $("meta[name='_csrf']").attr("content");
+		var header = $("meta[name='_csrf_header']").attr("content");
+
+		$.ajax({
+			url : '/auth/idCheck', //Controller에서 인식할 주소
+			type : 'post', //POST 방식으로 전달
+			data : {
+				"userId" : $("#userId").val()
+			},
+
+			//ajax csrf//
+			beforeSend : function(xhr) { /*데이터를 전송하기 전에 헤더에 csrf값을 설정한다*/
+				xhr.setRequestHeader(header, token);
+			},
+
+			success : function(data) {
+				if (data == 0) {
+					$("#login_btn").attr("value", "N");
+					alert("아이디를 확인해주세요.")
+					console.log("N")
+				}
+			}
+		})
+
+		$.ajax({
+			url : '/auth/pwCheck', //Controller에서 인식할 주소
+			type : 'post', //POST 방식으로 전달
+			data : {
+				"userId" : $("#userId").val(),
+				"pw" : $("#pw").val()
+			},
+
+			//ajax csrf//
+			beforeSend : function(xhr) { /*데이터를 전송하기 전에 헤더에 csrf값을 설정한다*/
+				xhr.setRequestHeader(header, token);
+			},
+
+			success : function(data) {
+				console.log(data);
+				if (data == 1) {
+					$("#login_btn").attr("value", "Y");
+					console.log("Y");
+					
+				} else {
+					alert("비밀번호를 확인해주세요.");
+					
+				}
+			}
+		})
+	}
+</script>
+
+<meta charset="UTF-8">
+<title>CoCoCo | 로그인</title>
+</head>
+<body>
+	<div class="auth_section">
+		<!-- login -->
+		<div class="panel-body">
+			<div id="intro">
+				<img src="/images/cococo-logo.png" alt="COCOCO">
+				<p>업무관리 워크스페이스, 코코코</p>
+			</div>
+			
+			<div th:if="${param.logout!= null}">
+				<h2>로그아웃됨</h2>
+			</div>
+			
+			<form method="post" th:onsubmit="return idCheckFunc()">
+				<div id="loginFrm">
+					<p>
+						<label for="userId"></label> <input type="text" id="userId"
+							class="user_id_input" name="username" placeholder="아이디" />
+					</p>
+					<p>
+						<label for="password"></label> <input type="password" id="pw"
+							name="password" placeholder="비밀번호" />
+					</p>
+				</div>
+				
+				<input type="hidden" th:name="${_csrf.parameterName}"
+					th:value="${_csrf.token}" /> <input type="submit" id="login_btn"
+					class="btn btn-outline-cococo" value="로그인">
+			</form>
+			
+			<button id="cacao-login-btn" class="btn"
+				onclick="location.href='/kakao/login'"></button>
+			<br>
+			<button class="btn btn-cococo" onclick="location.href='/auth/join'">회원가입</button>
+		</div>
+	</div>
+	<!-- auth_section -->
+</body>
+</html>

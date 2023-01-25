@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html xmlns:th="www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorator="~{/layout/layout1}"
+>
+<head>
+<style>
+.nav_menu3{
+	border-bottom: 3px solid tomato;
+}
+
+#searchDate{
+display:none;
+}
+
+.buttonColor{
+background-color: #FF7637;
+color: white;
+padding: 0px;
+width: 70px;
+height: 30px;
+font-size: 0.85rem;
+letter-spacing: -0.8px;
+}
+
+.buttonColor:hover {
+	background-color: #f26100;
+	text-decoration: none;
+	color: #ffffff;
+}
+
+#boardMain{
+	width: 850px;
+	margin: 0 auto;
+	margin-top: 40px;
+}
+
+#boardMainSub1{
+	position:relative;
+	width: 850px;
+	margin: 0 auto;
+	margin-top: 40px;
+
+}
+#boardMainSub1 h1 {
+	font-family: "LeferiPoint-WhiteObliqueA", sans-serif;
+    font-weight: 600;
+    letter-spacing: -2px;
+	margin-bottom: 30px;
+}
+#boardMainSub2{
+float: right;
+}
+
+#boardMain2{
+margin: 0 auto;
+width:850px;
+}
+
+#boardMainNav{
+display: flex;
+justify-content: center;
+}
+
+.table tr {
+height: 40px;
+}
+.table th {
+	background: white;
+}
+.table td, .table th, .table a {
+	padding: 5px;
+	color: #000000;
+	text-align: center;
+}
+
+
+.boardId{
+	width: 65px;
+}
+
+.boardTitle {
+	width: 520px;
+	padding-left: 15px;
+}
+table tr td:nth-of-type(2) {
+
+	text-align: left;
+}
+
+.Writer{
+	width: 140px;
+}
+
+#tableScall{
+height: 350px;
+overflow:auto;
+}
+
+#boardMainSearch{
+	width: 340px;
+	height: 30px;
+	margin: 0 auto;
+	display: flex;
+	flex-direction: column;
+	flex-wrap: wrap;
+}
+
+#boardMainSearch > input{
+	flex: 1;
+}
+
+#searchType {
+	height: 35px;
+	border: 1px solid #acacac;
+}
+
+#searchKeyword {
+	width: 200px;
+	height: 35px;
+	border: 1px solid #acacac;
+}
+#searchBtn {
+	margin-left: 5px;
+	box-sizing: content-box;
+	width: 45px;
+	height: 31px;
+	border: 1px solid #acacac;
+	border-collapse: collapse;
+}
+
+#categoryTable{
+width:150px;
+}
+ #cNameInsert{
+ width:150px;
+ }
+ 
+ #boardmainCategory{
+display:none;
+}
+
+#cNameInsertBtn{
+position: relative;
+left:15%;
+}
+</style>
+<style>
+/* The Modal (background) */
+.modal {
+  display: none; /* Hidden by default */
+  z-index: 1; /* Sit on top */
+    
+  position: fixed; /* Stay in place */
+  left: 15%;
+  top: 15%;
+  
+  width: 750px; /* Full width */
+  height: 500px; /* Full height */
+}
+
+/* Modal Content */
+.modal-content {
+  position: relative;
+  background-color: #fefefe;
+
+  width: 90%;
+  height: 90%;
+  
+  -webkit-animation-name: animatetop;
+  -webkit-animation-duration: 0.4s;
+  animation-name: animatetop;
+  animation-duration: 0.4s
+}
+
+/* Add Animation */
+@-webkit-keyframes animatetop {
+  from {top:-300px; opacity:0} 
+  to {top:0; opacity:1}
+}
+
+@keyframes animatetop {
+  from {top:-300px; opacity:0}
+  to {top:0; opacity:1}
+}
+</style>
+<meta charset="utf-8">
+<title>CoCoCo | [[${session.teamUser.teamUserId.team.teamName}]]</title>
+</head>
+<body>
+
+	<div layout:fragment="my_menu" class="my_menu">
+		<div th:replace="~{su/thymeleaf/boardSide}"></div>
+	</div>
+
+	<div layout:fragment="inner_content"  class="inner_content">
+	<div id="boardMain">
+		<div id="boardMain1">
+			<div id="boardMainSub1">
+				<h1>게시판 <span id="boardmainCategory"></span></h1>
+			</div>
+			<div id="boardMainSub2">
+				<input id="categoryMenu" type="hidden">
+				<button id="insertBoard" type="button" class="btn buttonColor">작성하기</button>
+			</div>
+		</div><br><br>
+		
+		<div id="boardMain2">
+		<div id="tableScall">
+			<table class="table table-hover">
+				<thead>
+					<tr>
+						<th class="boardId">글번호</th>
+						<th class="boardTitle">제목</th>
+						<th class="writer">작성자</th>
+						<th class="date">작성일</th>
+					</tr>
+				</thead>
+				
+						
+				<tbody id="replyTable">
+					<tr th:each="board:${boardList}">
+						<td th:text="${board.boardId}"></td>
+						<td ><a th:href="@{/boardUDsampleBeta(id=${board.boardId})}">[[${board.boardTitle}]]</a></td>
+						<td>[[${board.user.name}]]</td>
+						<td th:text="${#dates.format(board.boardRegDate, 'yy-MM-dd HH:mm')}"></td>
+					</tr>				
+				</tbody>
+			</table>
+			</div>	
+
+			<nav id="boardMainNav">
+				<ul class="pagination">		
+					<li th:if="${result.prevPage}" class="page-item">
+					<input id="prevPLvalue" type="hidden" th:value="${result.prevPage.getPageNumber()}">
+					<a id="nextPLprev" class="page-link">&#171;</a>
+					</li>
+					
+					<li th:each="p:${result.pageList}" class="page-item"><a id="navPage" class="page-link">[[${p.pageNumber}+1]]</a></li>
+					
+					<li th:if="${result.nextPage}" class="page-item" >
+					<input id="nextPLvalue" type="hidden" th:value="${result.nextPage.getPageNumber()}">
+					<a id="nextPLnext" class="page-link">&#187;</a>
+					</li>
+				</ul>
+			</nav>
+			
+			<div id="boardMainSearch">
+				<select id="searchType">
+				<option value='t'>제목</option>
+				<option value='c'>내용</option>
+				<option value='w'>작성자</option>	
+				</select>
+				
+				
+				<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+				<input type='text' id='searchKeyword'>
+				
+				<button type="submit" id='searchBtn'>검색</button><br>
+				<input type="date" id="searchDate">				
+			</div>
+		</div>
+	</div>
+
+
+	<!-- Modal -->
+	<div id="myModal" class="modal">
+
+		<!-- Modal content -->
+		<div class="modal-content">
+			<div class="modal-header">
+			<h5>카테고리 목록</h5>
+			<span id="closeModal" class="close">&times;</span>	
+			</div>
+			<div class="modal-body">
+			카테고리 이름: 
+			<select id="categoryTable2"></select>
+			<button id="categoryNameBtn2" class="btn buttonColor">선택</button><br><br>
+			
+			카테고리 이름: 
+			<input type="text" id="cNameInsert2">
+			<button id="cNameInsertBtn2" class="btn buttonColor">추가하기</button>
+			</div>
+		</div>
+
+	</div>
+
+
+	<script th:inline="javascript" th:src="@{'/js/RESTreply.js'}"></script>
+	<script th:inline="javascript">	
+	
+	var teamID;
+	var categoryList;
+	$(function(){
+		//세션정보 가져오기
+		var team_id = /*[[${session.teamId}]]*/'';
+		var user_id = /*[[${session.user.userId}]]*/'';
+		//console.log(team_id);
+		teamID = team_id;	
+		
+		categoryList = document.getElementById("categoryList");	
+		
+		$("#addCategory").show();
+		
+		$(".catelistID").click(function() {
+			var text = $(this).html();
+			$("#boardmainCategory").attr("style", "display:inline");
+			$("#boardmainCategory").html(" - "+text);
+			
+			var cId = $(this).attr("category-data");
+			$("#insertBoard").attr("categoryId", cId);
+			replyREST.getAllBoard("boardList/" + cId, printList);
+		})
+		
+	});	
+	var insertName = document.getElementById("cNameInsert");
+	var insertNameBtn = document.getElementById("cNameInsertBtn");
+	
+	var modal = document.getElementById("myModal");
+	var modalClose = document.getElementById("closeModal");
+	var cMenuname = document.getElementById("categoryMenu");
+	var categoryList = document.getElementById("categoryList");
+	
+	var formA = document.getElementById("boardFormA");
+	var showCategory = document.getElementById("scName");
+	
+	var formObj = document.querySelectorAll("#navPage");
+	for(let i=0; i<formObj.length; i++){
+		formObj[i].addEventListener('click', ()=>{
+			//alert("a tag clicked"+formObj[i].innerText);
+			replyREST.getBoardPage(formObj[i].innerText, printList);
+		});
+	}
+	
+	var insertBtn = document.getElementById("insertBoard");
+	insertBtn.onclick = function() {
+		if($("#boardmainCategory").text() ==""){
+			alert("카테고리를 선택하세요.");
+		} else{
+			var categoryId = $("#insertBoard").attr("categoryId");
+			location.href = "/boardInsertSample2/" + categoryId;
+		}
+	};
+	
+	var boardMainNav = document.getElementById("boardMainNav");
+	var navPageList = document.getElementById("nextPLprev");	
+	var navPListNext = document.getElementById("nextPLnext");	
+	var navNumber = document.getElementById("nextPLvalue");
+	var prevPLvalue = document.getElementById("prevPLvalue");
+	
+	var searchBtn = document.getElementById("searchBtn");
+	var searchKW = document.getElementById("searchKeyword");
+	var searchType = document.getElementById("searchType");
+	var searchDate = document.getElementById("searchDate");
+	
+	</script>
+
+	<script th:inline="javascript">		
+		searchBtn.onclick=function(){
+			var key = $("#searchKeyword").val();
+			if(key == null || key == '') return;
+			
+			var obj ={
+					"index" : searchType.options[searchType.selectedIndex].value, 
+					"value" : searchKW.value
+			};
+			//alert("obj.index: "+obj.index+" obj.value: "+obj.value);			
+			location.href="/boardLSearch/"+obj.index+"/"+obj.value;
+		}
+		
+		if(navPageList!= null){
+			navPageList.onclick = function(){
+				let temp = prevPLvalue.value;
+				console.log(temp);
+				//alert("next pagelist clicked: "+temp);
+				
+				location.href="/getNext/"+temp;
+			}	
+		}
+		if(navPListNext != null){
+			navPListNext.onclick = function(){
+				let temp = navNumber.value;
+				console.log(temp);
+				//alert("next pagelist clicked: "+temp);
+				
+				location.href="/getNext/"+temp;
+			}	
+		}
+		
+		insertNameBtn.onclick = function() {
+			//alert(insertName.value);
+			replyREST.getAllBoard("boardList/insertName/" + insertName.value+"/"+teamID, aaa);
+		}
+		
+		function aaa(res) {
+			location.reload();
+		}
+
+		modalClose.onclick = function() {
+			modal.style.display = "none";
+		};
+		
+	</script>
+	<script th:inline="javascript">			
+	
+	function printCategoryBeta(list) {
+		var result = "";
+		var obj;
+
+		for (var i = 0; i < list.length; i++) {
+			obj = list[i];
+			result += "<li>" + obj + "</li>"
+		}
+		$("#categoryList").html(result);
+	}
+	
+		function printCategory(list) {
+			var result = "";
+			var obj;
+
+			for (var i = 0; i < list.length; i++) {
+				obj = list[i];
+				result += "<option>" + obj + "</option>"
+			}
+			$("#categoryTable").html(result);
+		}
+		
+		function printList(list) {
+			
+			var str = "";
+			var replyObj;
+
+			if (list.length == 0) {
+				//alert("list is null");
+				str += "<tr>"+"<td colspan='4'>"+"<center>"+"만든 게시글 없습니다."+"</center>"+"</td>"+"</tr>";
+			} else if (list.length != 0) {
+
+				for (var i = 0; i < list.length; i++) {
+					replyObj = list[i];
+
+					str += "<tr>" + "<td>" + replyObj.boardId + "</td>"
+							+ "<td onclick='rowClick(" +replyObj.boardId+ ")'>" + replyObj.boardTitle + "</a>" + "</td>" 
+							+ "<td>" + replyObj.user.name + "</td>"
+							+ "<td>" + formatDate(replyObj.boardRegDate) + "</td>"
+							+ "</tr>";
+				}
+			}
+			$("#replyTable").html(str);
+		}
+		function formatDate(timeValue) {
+			var date = new Date(timeValue);
+			date.setFullYear(date.getFullYear()-2000);
+			
+			return date.getFullYear() + "-" 
+			+ ( (date.getMonth() + 1)>9?(date.getMont()+1):("0"+(date.getMonth()+1)) ) + "-"
+					+ ( date.getDate()>9?date.getDate():("0"+date.getDate()))+" "
+					+(date.getHours()>9?date.getHours():("0"+date.getHours()))+":"
+					+(date.getMinutes()>9?date.getMinutes():("0"+date.getMinutes()));
+		}
+		function rowClick(e){
+			//alert(e);			
+			location.href="/boardUDsampleBeta?id="+e;
+		}
+	</script>
+</div>
+</body>
+</html>

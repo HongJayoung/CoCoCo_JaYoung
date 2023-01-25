@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	  layout:decorate="~{/layout/layout1.html}">
+<head>
+<meta charset="UTF-8">
+
+<link rel="stylesheet" th:href="@{/css/ja0/adminUsercss.css}" />
+
+<title>CoCoCo | [[${session.team.teamName}]]</title>
+
+<style>
+
+</style>
+
+<script type="text/javascript">
+	$(function() {
+		var msg = "[[${msg}]]";
+		if(msg!="") {
+			alert(msg);
+		}
+		
+		$(".delUser").click(deleteUser);
+		$(".updateUser").click(getUser);
+		$("#updateBtn").click(updateUser);
+	})
+	
+	var token = $("meta[name='_csrf']").attr("content");
+	var header = $("meta[name='_csrf_header']").attr("content");
+	
+	function deleteUser() {
+		var userId = $(this).attr("user-data");
+	
+		if(confirm("해당 사용자를 삭제하시겠습니까?")) {
+			location.href="/admin/deleteUser/"+userId;
+		}
+	}
+		
+	function getUser() {
+		var userId = $(this).attr("user-data");
+		
+		$.ajax({
+			type:"post",
+			url: "/admin/findUser/"+userId,
+			beforeSend : function(xhr){
+				xhr.setRequestHeader(header, token);
+			},
+			success:function(resData) {
+				var id = resData.teamUserId.user.userId;
+				var name = resData.teamUserId.user.name+" ("+id+")";
+				
+				$("input[name='userId']").val(id);
+				$("input[name='name']").val(name);
+				$("select[name='userRole']").val(resData.userRole);
+			}
+		});
+	}
+		
+	function updateUser() {
+		var newRole = $("select[name='userRole']").val();
+		var userId = $("input[name='userId']").val();
+		
+		location.href="/admin/updateUser/"+userId+"/"+newRole;
+	}
+</script>
+</head>
+<body>
+<div layout:fragment="my_menu" class="my_menu">
+	<div th:replace="~{admin/adminSide}"></div>
+</div>
+
+<div layout:fragment="inner_content">
+	<div class="inner_content">
+		<div id="listTable">
+			<table id="userList" class="table">
+				<tr class="head">
+					<td></td>
+					<td>이름</td>
+					<td>이메일</td>
+					<td>소속</td>
+					<td>상태</td>
+					<td>참여일자</td>
+					<td>권한</td>
+					<td></td>
+					<td></td>
+				</tr>
+				
+				<tr id="teamUser" th:each="user, rowStatus:${userList}">
+					<td th:text="${rowStatus.count}">순서</td>
+					<td th:text="${user.teamUserId.user.name}">이름</td>
+					<td th:text="${user.teamUserId.user.userId}">이메일</td>
+					<td th:text="${user.teamUserId.user.company}">소속</td>
+					<td th:text="${user.teamUserId.user.status}">상태</td>
+					<td th:text="${#dates.format(user.joinDate,'yyyy-MM-dd')}">참여일자</td>
+					<td th:text="${user.userRole}">권한</td>
+					
+					<td th:if="${user.teamUserId.user.userId == user.teamUserId.team.user.userId || user.teamUserId.user.userId == session.user.userId}"></td>
+					<td th:if="${user.teamUserId.user.userId != user.teamUserId.team.user.userId && user.teamUserId.user.userId != session.user.userId}" 
+							data-toggle="modal" data-target="#updateUserRoleModal">
+						<img th:src="@{/images/updateRole.svg}" class="updateUser" th:user-data="${user.teamUserId.user.userId}" alt="update">
+					</td>
+					
+					<td th:if="${user.teamUserId.user.userId == user.teamUserId.team.user.userId || user.teamUserId.user.userId == session.user.userId}"></td>
+					<td th:if="${user.teamUserId.user.userId != user.teamUserId.team.user.userId && user.teamUserId.user.userId != session.user.userId}">
+						<img th:src="@{/images/deleteImg.svg}" class="delUser" th:user-data="${user.teamUserId.user.userId}" alt="delete">
+					</td>
+				</tr>
+			</table>
+		</div>
+	</div>
+	
+	<!-- 권한변경 모달 -->
+	<div class="modal fade" id="updateUserRoleModal">
+		<div class="modal-dialog">
+			<!-- Modal content -->
+			<div class="modal-content">
+				<div class="modal-header">
+					<h4 class="modal-title">권한 변경하기</h4>
+				</div>
+				<div class="modal-body">
+					<input type="hidden" name="userId">
+					
+					<label>USER</label> 
+					<input type="text" name="name" class="form-control" readonly="readonly">
+					
+		        	<label>USER ROLE</label>
+		        	<select class="form-control" name="userRole">
+		        		<option>ADMIN</option>
+		        		<option>USER</option>
+		        	</select>
+				</div>
+				<div class="modal-footer">
+					<button id = "updateBtn" class="btn btn-cococo">변경</button>
+	    			<button type="button" class="btn btn-light" data-dismiss="modal">취소</button> 
+				</div>
+			</div>
+		</div>
+	</div><!-- Modal -->
+</div>
+</body>
+</html>

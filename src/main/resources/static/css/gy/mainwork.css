@@ -1,0 +1,41 @@
+@charset "UTF-8";
+.worklist{
+	margin-top : 0.5rem;
+	/* height: calc(1.5em + 0.75rem + 20px); */
+	height: auto;
+	padding: 0.175rem 0.55rem;
+	text-align: initial;
+	display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.workTitleBox h2 {
+    float: left;
+}
+.workTitleText{
+	float:left;
+}
+#workShowBtn{
+	float:right;
+	margin-bottom: 0.2rem;
+	padding: 0.175rem 0.55rem;
+    font-size: 0.85rem;
+}
+.workListBox{
+	padding: 0.175rem;
+	clear: both;
+}
+.workListTitle{
+	font-size: 1.2em;
+}
+.workListContent{
+	width:700px; 
+	font-size: 0.8em;
+	overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: block;
+}
+.workNoneText{
+	border: none;
+}

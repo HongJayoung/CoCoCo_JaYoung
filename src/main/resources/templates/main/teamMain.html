@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	  layout:decorate="~{/layout/layout1.html}">
+<head>
+<meta charset="UTF-8">
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<link rel="stylesheet" th:href="@{/css/ja0/teamMaincss.css}" />
+
+<title>CoCoCo | [[${session.team.teamName}]]</title>
+<style>
+
+</style>
+
+<script type="text/javascript">
+	$(function() {
+		var msg = "[[${msg}]]";
+		if(msg!="") {
+			alert(msg);
+		}
+		
+		$("#editProfile").show();
+		
+		$("input[name='from']").val("t");
+		
+		$(".statusBtn").click(myStatus);
+		$("#statusUpdate").click(updateStatus);
+		$(".copyBtn").click(copyCode);
+		
+		$("#main1").load("/main/notice");
+		$("#main2").load("/main/summary");
+		$("#main3").load("/work/worklist");
+	})
+	
+	function myStatus() {
+		var status = "[[${session.user.status}]]";
+		
+		if(status != "") {
+			$("select[name='status']").val(status);
+		}
+	}
+	
+	function updateStatus() {
+		var status = $("select[name='status']").val();
+	
+		location.href="/updateStatus/t/" + status;
+	}
+	
+	function copyCode() {
+		var copyText = "[[${session.team.inviteCode}]]";
+		const t = document.createElement("textarea");
+		
+		document.body.appendChild(t);
+		t.value = copyText;
+		t.select();
+		document.execCommand('copy');
+		document.body.removeChild(t);
+		
+		alert("초대코드가 복사되었습니다.");
+	}
+</script>
+</head>
+
+<body>
+
+<div layout:fragment="my_menu">
+	<div th:replace="~{/main/teamUserList}"></div>
+	<div th:replace="~{/main/statusUpdateModal}"></div>
+	<div th:replace="~{/main/myProfileModal}"></div>
+</div>
+			
+<div layout:fragment="inner_content">
+	<div class="inner_content">
+		<div id="info">
+			<button class="btn btn-outline-cococo btn-sm copyBtn">초대코드</button>
+			
+			<div id="box">
+				<img th:src="${session.team.teamImg}?:@{/images/teamImg.png}" class="rounded">
+				<div id="ttt">
+					<div id="name">[[${session.team.teamName}]]</div>
+					<div id="tInfo">[[${session.team.teamInfo}]]</div>
+				</div>
+			</div>
+		</div>
+			
+		<div id="main1">
+			공지
+		</div>
+		
+		<div id="main2">
+			진행사항
+		</div>
+		
+		<div id="main3">
+			오늘의 업무
+		</div>
+	</div>	
+</div>
+</body>
+</html>

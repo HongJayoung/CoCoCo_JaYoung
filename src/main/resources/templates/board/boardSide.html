@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<link rel="stylesheet" th:href="@{/css/ja0/boardSidecss.css}" />
+
+	<div id="categoryTitle">
+		CATEGORY
+		<img th:src="@{/images/addCategory.svg}" id="addCategory" data-toggle="modal" data-target="#addCategoryModal">
+	</div>
+	<hr>
+	
+	<div th:each="category:${session.categoryList}" class="cList">
+		<a th:href="@{/board?categoryId=}+${category.boardCategoryId}">[[${category.categoryName}]]</a>
+		<img class="modifyCategory" th:src="@{/images/updateRole.svg}" th:categoryId="${category.boardCategoryId}"
+			data-toggle="modal" data-target="#modifyCategoryModal">
+	</div>
+	
+	<!-- 카테고리 등록 모달 -->
+    <div class="modal fade" id="addCategoryModal">
+		<div class="modal-dialog">
+	        <!-- Modal content -->
+	        <div class="modal-content">
+	        	<div class="modal-header">
+	           		<h4 class="modal-title">NEW CATEGORY</h4>
+	       		</div>
+	       		
+	        	<div class="modal-body">
+	        		<input type="text" name="categoryName" class="form-control">
+		        </div>
+			
+				<div class="modal-footer">
+			    	<button id = "addCategoryBtn" class="btn btn-cococo">카테고리 만들기</button>
+			    	<button type="button" class="btn btn-light" data-dismiss="modal">취소</button>
+	        	</div>
+	        </div>
+    	</div>
+    </div> <!-- Modal --> 
+	
+	<!-- 카테고리 수정 모달 -->
+    <div class="modal fade" id="modifyCategoryModal">
+		<div class="modal-dialog">
+	        <!-- Modal content -->
+	        <div class="modal-content">
+	        	<div class="modal-header">
+	           		<h4 class="modal-title">MODIFY CATEGORY</h4>
+	       		</div>
+	       		
+	        	<div class="modal-body">
+					<form id="modifyForm" action="/board/modifyCategory">
+					    <input type="hidden" id="categoryId" name="boardCategoryId">
+		        		<div class="form-group">
+							<label>CATEGORY NAME</label>
+					        <input type="text" id="categoryName" name="categoryName" class="form-control">
+						</div>
+					</form>
+		        </div>
+			
+				<div class="modal-footer">
+			    	<button id = "modifyCategoryBtn" class="btn btn-cococo">수정</button>
+			    	<button id = "delCategoryBtn" class="btn btn-outline-cococo">삭제</button>
+			    	<button type="button" class="btn btn-light" data-dismiss="modal">취소</button>
+	        	</div>
+	        </div>
+    	</div>
+    </div> <!-- Modal --> 
+    
+    <script>
+    $(function() {
+    	 $("#addCategory").click(setAddModal);
+    	 $("#addCategoryBtn").click(addCategory);
+    	 $(".modifyCategory").click(setModal);
+    	 $("#modifyCategoryBtn").click(modifyCategory);
+    	 $("#delCategoryBtn").click(deleteCategory);
+    })
+    
+    function setAddModal() {
+    	$("input[name='categoryName']").val(null);
+    }
+    
+    function addCategory() {
+    	var newCategory = $("input[name='categoryName']").val();
+    	location.href = "/board/addCategory/" + newCategory;
+    }
+    
+    function setModal() {
+    	var categoryId = $(this).attr("categoryId");
+    	
+    	$.ajax({
+			type:"get",
+			url: "/board/findCategory/"+categoryId,
+			success:function(resData) {
+				var categoryId = resData.boardCategoryId;
+		    	$("#categoryId").val(categoryId);
+		    	$("#categoryName").val(resData.categoryName);
+			}
+		});
+    }
+    
+    function modifyCategory() {
+    	var categoryName = $("#categoryName").val().trim();
+    	if(categoryName == "") {
+    		alert("카테고리 이름은 필수입니다!");
+    		$("#categoryName").focus();
+    		return;
+    	}
+    	
+    	$("#modifyForm").submit();
+    }
+    
+    function deleteCategory() {
+    	var categoryId = $("#categoryId").val();
+    	location.href = "/board/deleteCategory/" + categoryId;
+    }
+    </script>
+</html>

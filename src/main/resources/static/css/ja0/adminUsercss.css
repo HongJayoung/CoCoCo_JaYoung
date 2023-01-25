@@ -1,0 +1,63 @@
+@charset "UTF-8";
+.nav_menu5{
+	border-bottom: 3px solid tomato;
+}
+
+.inner_content {
+	padding: 0px 46px;
+}
+
+#listTable {
+	height: 93%;
+	overflow-x: auto;
+	padding: 0px 5px;
+}
+
+/* 스크롤바 설정*/
+#listTable::-webkit-scrollbar{
+    width: 5px;
+}
+
+/* 스크롤바 막대 설정*/
+#listTable::-webkit-scrollbar-thumb{
+    height: 10%;
+    background-color: rgba(0,0,0,0);
+    border-radius: 10px;/* 스크롤바 둥글게 설정    */
+}
+
+/* 스크롤바 hover*/
+#listTable:hover::-webkit-scrollbar-thumb{
+    background-color: #858585;
+}
+
+/* 스크롤바 뒷 배경 설정*/
+#listTable::-webkit-scrollbar-track{
+    background-color: rgba(0,0,0,0);
+}
+
+table{
+	background-color: white;
+	text-align: center;
+}
+
+.head {
+	background-color: #FF7F27;
+	color:white;
+	font-weight: bold;
+	position: sticky;
+    top: 0;
+}
+
+#adminUser {
+	color: #FF7F27;
+	font-weight: bold;
+}
+
+.delUser:hover, .updateUser:hover {
+	cursor: pointer;
+}
+
+.delUser, .updateUser {
+	width: 25px;
+	height: 25px;
+}
