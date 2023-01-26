@@ -132,7 +132,6 @@ public class BoardController {
 	public String modifyBoard(@PathVariable Long boardId, Model model) {
 		BoardVO board = bRepo.findById(boardId).get();
 		model.addAttribute("board", board);
-		model.addAttribute("bfList", bfRepo.findByBoard(board));
 		
 		return "/board/modifyBoard";
 	}

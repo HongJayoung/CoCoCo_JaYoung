@@ -14,7 +14,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.kos.CoCoCo.ja0.VO.BoardFile;
+import com.kos.CoCoCo.ja0.awsS3.AwsS3;
 import com.kos.CoCoCo.ja0.repository.BoardCategoryRepositoryH;
+import com.kos.CoCoCo.ja0.repository.BoardFileRepositoryH;
 import com.kos.CoCoCo.ja0.repository.BoardRepositoryH;
 import com.kos.CoCoCo.ja0.repository.ReplyRepositoryH;
 import com.kos.CoCoCo.vo.BoardCategoryVO;
@@ -32,7 +35,13 @@ public class BoardRestController {
 	BoardRepositoryH bRepo;
 	
 	@Autowired
+	BoardFileRepositoryH bfRepo;
+	
+	@Autowired
 	BoardCategoryRepositoryH bcRepo;
+	
+	@Autowired
+	AwsS3 awsS3;
 	
 	@GetMapping("/findCategory/{categoryId}")
 	public BoardCategoryVO findCategory(@PathVariable Long categoryId){
@@ -61,5 +70,20 @@ public class BoardRestController {
 		rRepo.deleteById(replyId);
 		
 		return rRepo.findByBoardId(boardId);
+	}
+	
+	@GetMapping("/getFile/{boardId}")
+	public List<BoardFile> fileList(@PathVariable Long boardId){
+		return bfRepo.findByBoard(bRepo.findById(boardId).get());
+	}
+	
+	@DeleteMapping("/deleteFile/{fileId}/{boardId}")
+	public List<BoardFile> deleteFile(@PathVariable Long fileId, @PathVariable Long boardId){
+		BoardFile bFile = bfRepo.findById(fileId).get();
+		
+		bfRepo.deleteById(fileId);
+		awsS3.delete(bFile.getFilename());
+		
+		return bfRepo.findByBoard(bRepo.findById(boardId).get());
 	}
 }

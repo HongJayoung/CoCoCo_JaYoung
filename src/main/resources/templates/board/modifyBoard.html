@@ -13,7 +13,7 @@
     letter-spacing: -2px;
 }
 
-#fileImg, #delFile {
+.fileImg, .delFile {
 	width: 18px;
     height: 18px;
     margin: 5px;
@@ -33,11 +33,7 @@
 	height: 300px;
 }
 
-#delImg {
-	width: 20px;
-}
-
-#delImg:hover, #delFile:hover {
+.delFile:hover {
 	cursor: pointer;
 }
 
@@ -48,10 +44,17 @@
 </style>
 
 <script>
+var boardId = "[[${board.boardId}]]";
+
 $(function() {
+	$.getJSON('/board/getFile/'+boardId, printList);
+	
 	$("#modifyBtn").click(isEmpty);
 	$("#goDetail").click(goDetail);
 })
+	
+var token = $("meta[name='_csrf']").attr("content");
+var header = $("meta[name='_csrf_header']").attr("content");
 
 function isEmpty() {
 	var title = $("input[name='boardTitle']");
@@ -73,6 +76,32 @@ function goDetail() {
 	$("#boardForm").submit(false);
 	location.href="/board/[[${board.boardId}]]";
 }
+
+function delFile(fileId) {
+	$.ajax({
+		type:'delete',
+		url: '/board/deleteFile/'+fileId+"/"+boardId,
+		beforeSend : function(xhr){
+			xhr.setRequestHeader(header, token);
+		},
+		success:printList
+	});
+}
+
+function printList(list) {
+	var str = "<div class='fileList'>";
+
+	for (var i = 0; i < list.length; i++) {
+		str += "<div>"
+			+ "<img src='/images/disk-icon.png' class='fileImg'>"
+			+ list[i].originFname
+			+ "<img src='/images/deleteTeamImg.svg' class='delFile' onclick='delFile("+ list[i].fileId +")'>"
+			+ "</div>"
+	}
+	
+	$("#files").html(str + "</div>");
+}
+
 </script>
 </head>
 <body>
@@ -91,14 +120,8 @@ function goDetail() {
 		<textarea name="boardText" class="form-control" id="boardText">[[${board.boardText}]]</textarea>
 		
 		<div id="fileTitle">첨부파일</div>
-		<div th:if="${!bfList.isEmpty}" id="files">
-			<div th:each="file:${bfList}">
-				<img th:src="@{/images/disk-icon.png}" id="fileImg">
-				[[${file.originFname}]]
-				<img th:src="@{/images/deleteTeamImg.svg}" id="delFile">
-			</div>
-		</div>
-		
+		<div id="files"></div>
+			
 		<hr>
 		
 		<input type="file" multiple="multiple" name="files">
