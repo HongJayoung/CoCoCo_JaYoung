@@ -70,7 +70,7 @@ function newBoard() {
 			<td th:text="${board.boardId}"></td>
 			<td>
 				<a th:href="@{/board/}+${board.boardId}">[[${board.boardTitle}]]</a>
-				<!-- <img th:src="@{/images/disk-icon.png}" th:if="${board.boardFile}" id="fileImg"> -->
+				<img th:src="@{/images/disk-icon.png}" th:if="${board.file.size()>0}" id="fileImg">
 			</td>
 			<td>[[${board.user.name}]]</td>
 			<td th:text="${#dates.format(board.boardRegDate, 'yy-MM-dd HH:mm')}"></td>

@@ -7,6 +7,7 @@ import javax.servlet.http.HttpSession;
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,6 +23,7 @@ import com.kos.CoCoCo.ja0.repository.BoardFileRepositoryH;
 import com.kos.CoCoCo.ja0.repository.BoardRepositoryH;
 import com.kos.CoCoCo.ja0.repository.ReplyRepositoryH;
 import com.kos.CoCoCo.ja0.repository.TeamRepository;
+import com.kos.CoCoCo.sol.vo.NoticeFile;
 import com.kos.CoCoCo.vo.BoardCategoryVO;
 import com.kos.CoCoCo.vo.BoardVO;
 import com.kos.CoCoCo.vo.UserVO;
@@ -49,7 +51,7 @@ public class BoardController {
 	AwsS3 awsS3;
 	
 	@GetMapping("")
-	public String boardMain(Long categoryId, HttpSession session, Model model) {
+	public String boardMain(Long categoryId, BoardVO board, HttpSession session, Model model) {
 		Long teamId = (Long) session.getAttribute("teamId");
 		session.setAttribute("categoryList", bcRepo.findByTeamId(teamId));
 		
@@ -148,17 +150,34 @@ public class BoardController {
 		return "redirect:/board/" + board.getBoardId();
 	}
 
-//	@Transactional
-//	@GetMapping("/delete/{boardId}")
-//	public String deleteBoard(@PathVariable Long boardId) {
-//		BoardVO board = bRepo.findById(boardId).get();
-//		awsS3.delete(board.getBoardFile());
-//		
-//		rRepo.deleteByBoardId(boardId);
-//		bRepo.deleteById(boardId);
-//		
-//		return "redirect:/board";
-//	}
+	@Transactional
+	@GetMapping("/delete/{boardId}")
+	public String deleteBoard(@PathVariable Long boardId) {
+		BoardVO board = bRepo.findById(boardId).get();
+		
+		List<BoardFile> bFile = bfRepo.findByBoard(board);
+		if(!bFile.isEmpty()) {
+			for(BoardFile bf:bFile) {
+				awsS3.delete(bf.getFilename()); 
+			}
+		}
+		
+		rRepo.deleteByBoardId(boardId);
+		bfRepo.deleteByBoardId(boardId);
+		bRepo.deleteById(boardId);
+		
+		return "redirect:/board";
+	}
+	
+	@GetMapping("/download/{fileId}")
+	public ResponseEntity<byte[]> download(@PathVariable Long fileId) throws IOException {
+		String dir = "uploads/boardFile/";
+		BoardFile file = bfRepo.findById(fileId).get();
+		
+		awsS3.copy(file.getFilename(), dir, file.getOriginFname());
+
+		return awsS3.download(dir, file.getOriginFname());
+	}
 	
 	private void saveFiles(BoardVO board, MultipartFile[] files) throws IOException {
 		for(MultipartFile file:files) {
