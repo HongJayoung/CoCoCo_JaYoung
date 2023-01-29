@@ -72,18 +72,4 @@ public class BoardRestController {
 		return rRepo.findByBoardId(boardId);
 	}
 	
-	@GetMapping("/getFile/{boardId}")
-	public List<BoardFile> fileList(@PathVariable Long boardId){
-		return bfRepo.findByBoard(bRepo.findById(boardId).get());
-	}
-	
-	@DeleteMapping("/deleteFile/{fileId}/{boardId}")
-	public List<BoardFile> deleteFile(@PathVariable Long fileId, @PathVariable Long boardId){
-		BoardFile bFile = bfRepo.findById(fileId).get();
-		
-		bfRepo.deleteById(fileId);
-		awsS3.delete(bFile.getFilename());
-		
-		return bfRepo.findByBoard(bRepo.findById(boardId).get());
-	}
 }

@@ -12,17 +12,21 @@ import javax.persistence.Table;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import com.kos.CoCoCo.ja0.VO.BoardFile;
+
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
+@ToString(exclude = "board")
+@AllArgsConstructor
 @Builder
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
 @Entity
-@Table(name = "replies")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ReplyVO {
 
 	@Id

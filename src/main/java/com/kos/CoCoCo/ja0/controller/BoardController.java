@@ -134,12 +134,13 @@ public class BoardController {
 	public String modifyBoard(@PathVariable Long boardId, Model model) {
 		BoardVO board = bRepo.findById(boardId).get();
 		model.addAttribute("board", board);
+		model.addAttribute("bFiles", bfRepo.findByBoard(board));
 		
 		return "/board/modifyBoard";
 	}
 	
 	@PostMapping("/modify")
-	public String modify(BoardVO board, MultipartFile[] files) throws IOException {
+	public String modify(BoardVO board, MultipartFile[] files, String fileIds) throws IOException {
 		BoardVO b = bRepo.findById(board.getBoardId()).get();
 		b.setBoardTitle(board.getBoardTitle());
 		b.setBoardText(board.getBoardText());
@@ -147,6 +148,16 @@ public class BoardController {
 		BoardVO updateBoard = bRepo.save(b);
 		saveFiles(updateBoard, files);
 
+		if(!fileIds.isBlank()) {
+			String[] arr = fileIds.split(",");
+			
+			for(String id : arr) {
+				BoardFile bf = bfRepo.findById(Long.valueOf(id)).get();
+				bfRepo.deleteById(bf.getFileId());
+				awsS3.delete(bf.getFilename());
+			}
+		}
+		
 		return "redirect:/board/" + board.getBoardId();
 	}
 

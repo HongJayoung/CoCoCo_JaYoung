@@ -47,14 +47,24 @@
 var boardId = "[[${board.boardId}]]";
 
 $(function() {
-	$.getJSON('/board/getFile/'+boardId, printList);
-	
 	$("#modifyBtn").click(isEmpty);
 	$("#goDetail").click(goDetail);
+	$(".delFile").click(delFile);
 })
 	
 var token = $("meta[name='_csrf']").attr("content");
 var header = $("meta[name='_csrf_header']").attr("content");
+
+function goDetail() {
+	$("#boardForm").submit(false);
+	location.href="/board/[[${board.boardId}]]";
+}
+
+var arr = [];
+function delFile() {
+	arr.push($(this).attr("fileId"));
+	$(this).parent().hide();
+}
 
 function isEmpty() {
 	var title = $("input[name='boardTitle']");
@@ -68,40 +78,12 @@ function isEmpty() {
 		return false;
 	}
 	
+	var fIds = arr.join(",");
+	$("#fileIds").val(fIds);
+	
 	$("#boardForm").attr("action", "/board/modify");
 	$("#boardForm").submit();
 }
-
-function goDetail() {
-	$("#boardForm").submit(false);
-	location.href="/board/[[${board.boardId}]]";
-}
-
-function delFile(fileId) {
-	$.ajax({
-		type:'delete',
-		url: '/board/deleteFile/'+fileId+"/"+boardId,
-		beforeSend : function(xhr){
-			xhr.setRequestHeader(header, token);
-		},
-		success:printList
-	});
-}
-
-function printList(list) {
-	var str = "<div class='fileList'>";
-
-	for (var i = 0; i < list.length; i++) {
-		str += "<div>"
-			+ "<img src='/images/disk-icon.png' class='fileImg'>"
-			+ list[i].originFname
-			+ "<img src='/images/deleteTeamImg.svg' class='delFile' onclick='delFile("+ list[i].fileId +")'>"
-			+ "</div>"
-	}
-	
-	$("#files").html(str + "</div>");
-}
-
 </script>
 </head>
 <body>
@@ -120,12 +102,20 @@ function printList(list) {
 		<textarea name="boardText" class="form-control" id="boardText">[[${board.boardText}]]</textarea>
 		
 		<div id="fileTitle">첨부파일</div>
-		<div id="files"></div>
-			
+		<div id="files" th:if="${!bFiles.isEmpty}">
+			<div class='file' th:each="f:${bFiles}">
+				<img src='/images/disk-icon.png' class='fileImg'>
+				[[${f.originFname}]]
+				<img src='/images/deleteTeamImg.svg' class='delFile' th:fileId="${f.fileId}">
+			</div>
+		</div>
+		
 		<hr>
 		
 		<input type="file" multiple="multiple" name="files">
 		<p>(Ctrl+선택 시 다중선택 가능)</p>
+		
+		<input type="hidden" id="fileIds" name="fileIds" value=""/>
 		
 		<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
 		
